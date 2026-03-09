@@ -32,7 +32,9 @@ TikTok用に以下の構成で30秒の台本を作成:
       max_tokens: 512,
       messages: [{ role: "user", content: prompt }],
     });
-    const text = (response.content[0] as { text: string }).text.trim();
+    const raw = (response.content[0] as { text: string }).text.trim();
+    // Convert literal \n to actual newlines
+    const text = raw.replace(/\\n/g, "\n");
     return NextResponse.json({ text, serviceId, platform });
   } catch (err) {
     console.error(err);
