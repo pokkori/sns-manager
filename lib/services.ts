@@ -77,28 +77,6 @@ export const SERVICES: Service[] = [
 テキストのみ返す（余計な説明不要）。`,
   },
   {
-    id: "yakuari",
-    name: "脈あり解読AI",
-    emoji: "💗",
-    url: "https://yaku-ari-ai.vercel.app",
-    hashtags: ["恋愛相談", "LINE診断", "脈あり"],
-    cronDays: [2, 5], // Tue, Fri
-    cronHour: 22,
-    postPrompt: `LINEの脈あり判定AIサービスのX投稿を1つ作成してください。
-対象: 女子高生〜20代女性
-
-以下のいずれかのテーマで日本語ツイートを作成（女子向けかわいいトーンで）:
-1. 「こんなLINEが来たら脈ありかも...💗」という共感投稿
-2. 脈ありLINEのあるある（絵文字の使い方・既読無視など）
-3. 「好きな人のLINEを解読してみた結果が...」という体験談風
-4. 「3回無料で試せる、コピペするだけ」という訴求
-
-本文の最後の行にサービスURL https://yaku-ari-ai.vercel.app を入れる。
-その次の行に #恋愛相談 #LINE診断 #脈あり を付ける。
-本文＋URL＋ハッシュタグの合計が280文字以内に収まるようにする。
-テキストのみ返す（余計な説明不要）。`,
-  },
-  {
     id: "kokuhaku",
     name: "告白LINE返信AI",
     emoji: "💬",
@@ -183,28 +161,6 @@ export const SERVICES: Service[] = [
 
 本文の最後の行にサービスURL https://ec-description-generator.vercel.app を入れる。
 その次の行に #メルカリ #EC副業 #フリマ を付ける。
-本文＋URL＋ハッシュタグの合計が280文字以内に収まるようにする。
-テキストのみ返す（余計な説明不要）。`,
-  },
-  {
-    id: "sns",
-    name: "SNS投稿生成AI",
-    emoji: "📱",
-    url: "https://sns-post-generator.vercel.app",
-    hashtags: ["SNS運用", "コンテンツ制作"],
-    cronDays: [3], // Wed
-    cronHour: 21,
-    postPrompt: `SNS投稿文生成AIサービスのX投稿を1つ作成してください。
-対象: 副業・フリーランス・個人事業主・スモールビジネスオーナー
-
-以下のいずれかのテーマで日本語ツイートを作成:
-1. 「SNS投稿のネタが尽きた→AIで解決する方法」
-2. 「毎日投稿が続かない人へ、月¥980で投稿ネタを量産」
-3. 「X・Instagram・TikTok向け投稿を同時に5パターン生成」
-4. 「サービス名を入力するだけ、あとはAIにお任せ」
-
-本文の最後の行にサービスURL https://sns-post-generator-gamma.vercel.app を入れる。
-その次の行に #SNS運用 #コンテンツ制作 #副業 を付ける。
 本文＋URL＋ハッシュタグの合計が280文字以内に収まるようにする。
 テキストのみ返す（余計な説明不要）。`,
   },
