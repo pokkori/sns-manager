@@ -5,9 +5,9 @@ import "./globals.css";
 
 const geist = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 
-const SITE_URL = "https://yaku-ari-ai.vercel.app";
-const TITLE = "脈あり解読AI | LINEの文章をAIが本気で分析。脈あり度・心理・返信例文まで";
-const DESC = "彼からのLINEをコピペするだけ。AIが脈あり度を0〜100%で判定し、彼の心理分析・返信例文・恋愛アドバイスまで生成。3回無料で試せる。";
+const SITE_URL = "https://kokuhaku-line-ai.vercel.app";
+const TITLE = "告白LINE返信AI | 好きな子のLINEをAIが分析。脈あり度・返信例文・告白タイミングを判定";
+const DESC = "好きな子のLINEをコピペするだけ。AIが脈あり度を0〜100%で判定し、最適な返信例文・告白文・告白タイミングまで生成。3回無料。";
 
 export const metadata: Metadata = {
   title: TITLE,
@@ -16,7 +16,7 @@ export const metadata: Metadata = {
     title: TITLE,
     description: DESC,
     url: SITE_URL,
-    siteName: "脈あり解読AI",
+    siteName: "告白LINE返信AI",
     locale: "ja_JP",
     type: "website",
   },

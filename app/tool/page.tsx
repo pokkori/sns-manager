@@ -2,7 +2,14 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 
-type Result = { score: number; analysis: string; replies: string[]; advice: string } | null;
+type Result = {
+  score: number;
+  analysis: string;
+  replies: string[];
+  confession: string;
+  timing: string;
+  adviceLine: string;
+} | null;
 
 function parseResult(text: string): Result {
   const get = (tag: string) => {
@@ -10,45 +17,74 @@ function parseResult(text: string): Result {
     return m ? m[1].trim() : "";
   };
   const scoreStr = get("SCORE");
-  const score = parseInt(scoreStr.match(/\d+/)?.[0] ?? "0", 10);
-  const repliesRaw = get("REPLY");
-  const replies = repliesRaw.split("---").map((r) => r.trim()).filter(Boolean);
-  return { score, analysis: get("ANALYSIS"), replies, advice: get("ADVICE") };
+  const score = parseInt(scoreStr, 10);
+  if (isNaN(score)) return null;
+  const repliesRaw = get("REPLIES");
+  const replies = repliesRaw.split(/\n(?=\d\.)/).map((s) => s.replace(/^\d\.\s*/, "").trim()).filter(Boolean);
+  return {
+    score,
+    analysis: get("ANALYSIS"),
+    replies,
+    confession: get("CONFESSION"),
+    timing: get("TIMING"),
+    adviceLine: get("ADVICE"),
+  };
 }
 
 function ScoreRing({ score }: { score: number }) {
-  const color = score >= 70 ? "text-pink-400" : score >= 40 ? "text-yellow-400" : "text-rose-400";
-  const label = score >= 70 ? "脈あり💕" : score >= 40 ? "微妙…🤔" : "厳しいかも😢";
+  const color = score >= 70 ? "#3b82f6" : score >= 40 ? "#f59e0b" : "#ef4444";
+  const label = score >= 70 ? "脈ありです！" : score >= 40 ? "まだわからない" : "厳しいかも…";
+  const r = 54;
+  const circ = 2 * Math.PI * r;
+  const offset = circ - (score / 100) * circ;
   return (
-    <div className="flex flex-col items-center">
-      <div className={`text-7xl font-black ${color}`}>{score}%</div>
-      <div className={`text-xl font-bold mt-2 ${color}`}>{label}</div>
+    <div className="flex flex-col items-center gap-2 my-6">
+      <svg width="140" height="140" viewBox="0 0 140 140">
+        <circle cx="70" cy="70" r={r} fill="none" stroke="#1e293b" strokeWidth="12" />
+        <circle
+          cx="70" cy="70" r={r} fill="none" stroke={color} strokeWidth="12"
+          strokeDasharray={circ} strokeDashoffset={offset}
+          transform="rotate(-90 70 70)" strokeLinecap="round"
+        />
+        <text x="70" y="65" textAnchor="middle" fill="white" fontSize="26" fontWeight="bold">{score}%</text>
+        <text x="70" y="85" textAnchor="middle" fill="#94a3b8" fontSize="11">脈あり度</text>
+      </svg>
+      <span className="font-bold text-lg" style={{ color }}>{label}</span>
     </div>
   );
 }
 
+type Tab = "score" | "analysis" | "replies" | "confession" | "timing";
+const TABS: { id: Tab; label: string }[] = [
+  { id: "score", label: "📊 判定" },
+  { id: "analysis", label: "🔍 心理分析" },
+  { id: "replies", label: "💬 返信例文" },
+  { id: "confession", label: "💌 告白文" },
+  { id: "timing", label: "📅 タイミング" },
+];
+
 export default function ToolPage() {
-  const [message, setMessage] = useState("");
+  const [line, setLine] = useState("");
   const [context, setContext] = useState("");
-  const [result, setResult] = useState<Result>(null);
   const [loading, setLoading] = useState(false);
+  const [result, setResult] = useState<Result>(null);
   const [error, setError] = useState("");
   const [remaining, setRemaining] = useState<number | null>(null);
   const [isPremium, setIsPremium] = useState(false);
   const [showPaywall, setShowPaywall] = useState(false);
+  const [tab, setTab] = useState<Tab>("score");
+  const [copied, setCopied] = useState<string | null>(null);
   const [checkoutLoading, setCheckoutLoading] = useState(false);
-  const [copied, setCopied] = useState<number | null>(null);
 
   useEffect(() => {
     fetch("/api/auth/status").then((r) => r.json()).then((d) => {
-      setRemaining(d.remaining);
       setIsPremium(d.premium);
+      setRemaining(d.remaining);
     });
   }, []);
 
   async function analyze() {
-    if (!message.trim()) return;
-    if (!isPremium && remaining === 0) { setShowPaywall(true); return; }
+    if (!line.trim()) return;
     setLoading(true);
     setError("");
     setResult(null);
@@ -56,18 +92,19 @@ export default function ToolPage() {
       const res = await fetch("/api/analyze", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message, context }),
+        body: JSON.stringify({ line, context }),
       });
+      if (res.status === 402) { setShowPaywall(true); setLoading(false); return; }
       const data = await res.json();
-      if (res.status === 402) { setShowPaywall(true); return; }
-      if (!res.ok) { setError(data.error ?? "エラーが発生しました"); return; }
-      setResult(parseResult(data.result));
+      if (data.error) { setError(data.error); setLoading(false); return; }
+      const parsed = parseResult(data.result);
+      setResult(parsed);
       setRemaining(data.remaining);
+      setTab("score");
     } catch {
-      setError("通信エラーが発生しました。もう一度お試しください。");
-    } finally {
-      setLoading(false);
+      setError("エラーが発生しました。もう一度お試しください。");
     }
+    setLoading(false);
   }
 
   async function startCheckout() {
@@ -81,136 +118,160 @@ export default function ToolPage() {
     }
   }
 
-  function copy(text: string, i: number) {
+  function copy(text: string, key: string) {
     navigator.clipboard.writeText(text);
-    setCopied(i);
+    setCopied(key);
     setTimeout(() => setCopied(null), 2000);
   }
 
   return (
-    <main className="min-h-screen bg-rose-950 text-white">
-      <header className="border-b border-rose-800 py-4 px-6 flex items-center justify-between">
-        <Link href="/" className="text-pink-400 font-bold text-sm hover:text-pink-300">💌 脈あり解読AI</Link>
-        <span className="text-rose-500 text-xs">
-          {isPremium ? "✨ プレミアム" : remaining !== null ? `無料残り ${remaining}回` : ""}
-        </span>
-      </header>
+    <main className="min-h-screen bg-slate-950 text-white">
+      <nav className="bg-slate-900 border-b border-slate-800 px-6 py-4 flex justify-between items-center">
+        <Link href="/" className="font-bold text-blue-400">💬 告白LINE返信AI</Link>
+        {!isPremium && remaining !== null && (
+          <span className="text-xs text-slate-400">残り無料 {remaining}回</span>
+        )}
+        {isPremium && <span className="text-xs text-blue-400 font-bold">✓ プレミアム</span>}
+      </nav>
 
-      <div className="max-w-2xl mx-auto px-4 py-10">
-        <h1 className="text-2xl font-black text-center mb-2">LINEを解読する 💕</h1>
-        <p className="text-rose-400 text-center text-sm mb-8">彼から来たLINEをそのまま貼り付けてください</p>
-
-        <div className="space-y-4">
-          <div>
-            <label className="block text-rose-300 text-sm font-bold mb-2">
-              💬 彼からのLINE（必須）
-            </label>
-            <textarea
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              rows={6}
-              placeholder={"例：\n彼「今日暇？」\n私「暇だよ！何かあった？」\n彼「いや、なんとなく笑」\n彼「最近どうしてる」"}
-              className="w-full bg-rose-900 border border-rose-700 rounded-xl p-4 text-white placeholder-rose-600 resize-none focus:outline-none focus:border-pink-500 text-sm"
-            />
-          </div>
-          <div>
-            <label className="block text-rose-300 text-sm font-bold mb-2">
-              📝 補足情報（任意）
-            </label>
-            <input
-              type="text"
-              value={context}
-              onChange={(e) => setContext(e.target.value)}
-              placeholder="例：同じクラスで2ヶ月前から話し始めた。昨日初めて2人で帰った。"
-              className="w-full bg-rose-900 border border-rose-700 rounded-xl p-4 text-white placeholder-rose-600 focus:outline-none focus:border-pink-500 text-sm"
-            />
-          </div>
-
-          <button
-            onClick={analyze}
-            disabled={loading || !message.trim()}
-            className="w-full bg-pink-500 hover:bg-pink-400 disabled:opacity-50 text-white font-black text-lg py-4 rounded-xl transition"
-          >
-            {loading ? "AIが解読中…💭" : "💕 脈あり度を解読する"}
-          </button>
+      <div className="max-w-2xl mx-auto px-4 py-10 space-y-6">
+        <div>
+          <label className="block text-sm font-bold mb-2 text-slate-300">好きな子のLINE（コピペしてください）</label>
+          <textarea
+            className="w-full bg-slate-800 border border-slate-700 rounded-xl p-4 text-sm text-white placeholder-slate-500 resize-none focus:outline-none focus:border-blue-500 h-40"
+            placeholder={"例）\n彼女: 「今日バイトだよー」\n自分: 「お疲れ！何時まで？」\n彼女: 「9時まで笑 なんで？」\n自分: 「いや別に笑」\n彼女: 「気になる笑」"}
+            value={line}
+            onChange={(e) => setLine(e.target.value)}
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-bold mb-2 text-slate-300">関係性・状況（任意）</label>
+          <input
+            type="text"
+            className="w-full bg-slate-800 border border-slate-700 rounded-xl p-4 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500"
+            placeholder="例：クラスメートで知り合って1ヶ月、まだ連絡先交換したばかり"
+            value={context}
+            onChange={(e) => setContext(e.target.value)}
+          />
         </div>
 
-        {error && <p className="text-red-400 text-sm mt-4 text-center">{error}</p>}
+        {!isPremium && remaining === 0 && !result && (
+          <div className="bg-blue-900/40 border border-blue-600 rounded-xl p-4 text-center">
+            <p className="text-sm text-blue-200 mb-3">無料回数を使い切りました。月額¥980で使い放題！</p>
+            <button onClick={startCheckout} disabled={checkoutLoading} className="bg-blue-500 hover:bg-blue-400 text-white font-bold px-6 py-2 rounded-xl text-sm transition disabled:opacity-50">
+              {checkoutLoading ? "処理中..." : "プレミアムにアップグレード"}
+            </button>
+          </div>
+        )}
+
+        <button
+          onClick={analyze}
+          disabled={loading || !line.trim() || (!isPremium && remaining === 0)}
+          className="w-full bg-blue-500 hover:bg-blue-400 text-white font-black py-4 rounded-xl text-lg transition disabled:opacity-40 disabled:cursor-not-allowed"
+        >
+          {loading ? "AIが解析中…" : "解析する"}
+        </button>
+
+        {error && <p className="text-red-400 text-sm text-center">{error}</p>}
+
+        {/* Paywall */}
+        {showPaywall && (
+          <div className="bg-slate-800 border border-blue-500 rounded-2xl p-8 text-center">
+            <div className="text-4xl mb-4">🔒</div>
+            <h3 className="text-xl font-bold mb-2">無料回数が終わりました</h3>
+            <p className="text-slate-400 text-sm mb-6">月額¥980で解析し放題 + 告白文テンプレ完全解放</p>
+            <button onClick={startCheckout} disabled={checkoutLoading} className="bg-blue-500 hover:bg-blue-400 text-white font-black px-8 py-4 rounded-xl text-lg transition disabled:opacity-50 w-full">
+              {checkoutLoading ? "処理中..." : "¥980/月でアップグレード"}
+            </button>
+          </div>
+        )}
 
         {result && (
-          <div className="mt-10 space-y-6">
-            {/* Score */}
-            <div className="bg-rose-900 rounded-2xl p-8 text-center border border-rose-700">
-              <div className="text-rose-400 text-sm font-bold mb-4">AIの判定結果</div>
-              <ScoreRing score={result.score} />
+          <div className="bg-slate-900 rounded-2xl border border-slate-700 overflow-hidden">
+            {/* Tab nav */}
+            <div className="flex overflow-x-auto border-b border-slate-700">
+              {TABS.map((t) => (
+                <button
+                  key={t.id}
+                  onClick={() => setTab(t.id)}
+                  className={`px-4 py-3 text-xs font-bold whitespace-nowrap transition ${tab === t.id ? "text-blue-400 border-b-2 border-blue-400" : "text-slate-500 hover:text-slate-300"}`}
+                >
+                  {t.label}
+                </button>
+              ))}
             </div>
 
-            {/* Analysis */}
-            <div className="bg-rose-900 rounded-2xl p-6 border border-rose-700">
-              <h2 className="text-pink-400 font-bold mb-3">🧠 彼の心理・気持ちの分析</h2>
-              <p className="text-rose-200 text-sm leading-relaxed whitespace-pre-wrap">{result.analysis}</p>
-            </div>
+            <div className="p-6">
+              {tab === "score" && (
+                <div>
+                  <ScoreRing score={result.score} />
+                  {result.adviceLine && (
+                    <div className="bg-slate-800 rounded-xl p-4 mt-4">
+                      <p className="text-sm text-slate-300 leading-relaxed">{result.adviceLine}</p>
+                    </div>
+                  )}
+                </div>
+              )}
 
-            {/* Reply suggestions */}
-            <div className="bg-rose-900 rounded-2xl p-6 border border-rose-700">
-              <h2 className="text-pink-400 font-bold mb-4">✉️ あなたへのおすすめ返信例文</h2>
-              <div className="space-y-3">
-                {result.replies.map((reply, i) => (
-                  <div key={i} className="bg-rose-800 rounded-xl p-4">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-pink-300 text-xs font-bold">パターン {i + 1}</span>
+              {tab === "analysis" && (
+                <div className="text-sm text-slate-300 leading-relaxed whitespace-pre-wrap">{result.analysis}</div>
+              )}
+
+              {tab === "replies" && (
+                <div className="space-y-4">
+                  <p className="text-xs text-slate-500 mb-4">LINEに送る返信例文（そのままコピーして使えます）</p>
+                  {result.replies.map((r, i) => (
+                    <div key={i} className="bg-slate-800 rounded-xl p-4 relative">
+                      <p className="text-sm text-slate-200 leading-relaxed pr-16">{r}</p>
                       <button
-                        onClick={() => copy(reply, i)}
-                        className="text-xs bg-rose-700 hover:bg-rose-600 px-3 py-1 rounded-lg transition"
+                        onClick={() => copy(r, `reply-${i}`)}
+                        className="absolute top-3 right-3 text-xs bg-slate-700 hover:bg-slate-600 text-slate-300 px-2 py-1 rounded transition"
                       >
-                        {copied === i ? "✓ コピー済み" : "コピー"}
+                        {copied === `reply-${i}` ? "コピー済" : "コピー"}
                       </button>
                     </div>
-                    <p className="text-white text-sm whitespace-pre-wrap">{reply}</p>
+                  ))}
+                </div>
+              )}
+
+              {tab === "confession" && (
+                isPremium ? (
+                  <div className="space-y-4">
+                    <p className="text-xs text-slate-500 mb-4">告白文（そのまま使えます）</p>
+                    <div className="bg-slate-800 rounded-xl p-4 relative">
+                      <p className="text-sm text-slate-200 leading-relaxed pr-16 whitespace-pre-wrap">{result.confession}</p>
+                      <button
+                        onClick={() => copy(result.confession, "confession")}
+                        className="absolute top-3 right-3 text-xs bg-slate-700 hover:bg-slate-600 text-slate-300 px-2 py-1 rounded transition"
+                      >
+                        {copied === "confession" ? "コピー済" : "コピー"}
+                      </button>
+                    </div>
                   </div>
-                ))}
-              </div>
-            </div>
+                ) : (
+                  <div className="text-center py-8">
+                    <div className="text-4xl mb-4">🔒</div>
+                    <p className="text-slate-400 text-sm mb-4">告白文テンプレはプレミアム限定機能です</p>
+                    <button onClick={startCheckout} disabled={checkoutLoading} className="bg-blue-500 hover:bg-blue-400 text-white font-bold px-6 py-3 rounded-xl text-sm transition disabled:opacity-50">
+                      {checkoutLoading ? "処理中..." : "¥980/月でアップグレード"}
+                    </button>
+                  </div>
+                )
+              )}
 
-            {/* Advice */}
-            <div className="bg-pink-900/40 rounded-2xl p-6 border border-pink-800">
-              <h2 className="text-pink-400 font-bold mb-3">💡 恋愛アドバイス</h2>
-              <p className="text-rose-200 text-sm leading-relaxed whitespace-pre-wrap">{result.advice}</p>
+              {tab === "timing" && (
+                <div className="text-sm text-slate-300 leading-relaxed whitespace-pre-wrap">{result.timing}</div>
+              )}
             </div>
-
-            <button
-              onClick={() => { setResult(null); setMessage(""); setContext(""); }}
-              className="w-full border border-rose-700 text-rose-400 hover:text-white hover:border-rose-500 font-semibold py-3 rounded-xl transition text-sm"
-            >
-              別のLINEを解読する
-            </button>
           </div>
         )}
       </div>
 
-      {/* Paywall Modal */}
-      {showPaywall && (
-        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 px-4">
-          <div className="bg-rose-900 rounded-2xl p-8 max-w-md w-full text-center border border-pink-600">
-            <div className="text-4xl mb-4">💌</div>
-            <h2 className="text-xl font-black mb-2">無料の3回を使い切りました</h2>
-            <p className="text-rose-300 text-sm mb-6">
-              プレミアムプランで無制限に解読できます。<br />
-              月¥980で毎日何度でも使い放題。
-            </p>
-            <button
-              onClick={startCheckout}
-              disabled={checkoutLoading}
-              className="w-full bg-pink-500 hover:bg-pink-400 text-white font-black py-4 rounded-xl transition disabled:opacity-60 mb-3"
-            >
-              {checkoutLoading ? "処理中..." : "¥980/月で続ける →"}
-            </button>
-            <button onClick={() => setShowPaywall(false)} className="text-rose-500 text-sm hover:text-rose-300">
-              閉じる
-            </button>
-          </div>
-        </div>
-      )}
+      <footer className="border-t border-slate-800 py-6 text-center text-xs text-slate-600 space-x-4 mt-10">
+        <Link href="/legal" className="hover:underline">特定商取引法</Link>
+        <Link href="/privacy" className="hover:underline">プライバシーポリシー</Link>
+        <Link href="/" className="hover:underline">トップへ戻る</Link>
+      </footer>
     </main>
   );
 }
