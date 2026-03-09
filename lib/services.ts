@@ -18,7 +18,7 @@ export const SERVICES: Service[] = [
     url: "https://keiba-yoso-ai.vercel.app",
     hashtags: ["競馬予想", "G1予想", "AI競馬"],
     cronDays: [6, 0], // Sat, Sun
-    cronHour: 8,
+    cronHour: 7,
     postPrompt: `競馬予想AIサービスのX(Twitter)投稿を1つ作成してください。
 
 以下のいずれかのテーマで、日本語ツイートを作成:
@@ -39,7 +39,7 @@ export const SERVICES: Service[] = [
     url: "https://claim-ai.vercel.app",
     hashtags: ["クレーム対応", "カスタマーサービス"],
     cronDays: [1, 3, 5], // Mon, Wed, Fri
-    cronHour: 9,
+    cronHour: 8,
     postPrompt: `クレーム対応AIサービスのX投稿を1つ作成してください。
 対象: 飲食店・EC事業者・ホテル・サービス業の経営者・店長
 
@@ -83,7 +83,7 @@ export const SERVICES: Service[] = [
     url: "https://yaku-ari-ai.vercel.app",
     hashtags: ["恋愛相談", "LINE診断", "脈あり"],
     cronDays: [2, 5], // Tue, Fri
-    cronHour: 20,
+    cronHour: 22,
     postPrompt: `LINEの脈あり判定AIサービスのX投稿を1つ作成してください。
 対象: 女子高生〜20代女性
 
@@ -105,7 +105,7 @@ export const SERVICES: Service[] = [
     url: "https://kokuhaku-line-ai.vercel.app",
     hashtags: ["恋愛", "告白", "LINE"],
     cronDays: [2, 5], // Tue, Fri
-    cronHour: 21,
+    cronHour: 22,
     postPrompt: `好きな子へのLINE返信・告白文生成AIサービスのX投稿を1つ作成してください。
 対象: 男子高生〜20代男性
 
@@ -127,7 +127,7 @@ export const SERVICES: Service[] = [
     url: "https://ai-keiei-keikaku.vercel.app",
     hashtags: ["起業", "経営計画書", "創業融資"],
     cronDays: [1, 4], // Mon, Thu
-    cronHour: 9,
+    cronHour: 8,
     postPrompt: `経営計画書AI作成サービスのX投稿を1つ作成してください。
 対象: 起業家・個人事業主・副業で法人化を検討中の方
 
@@ -149,7 +149,7 @@ export const SERVICES: Service[] = [
     url: "https://hojyokin-ai-delta.vercel.app",
     hashtags: ["補助金", "助成金", "中小企業"],
     cronDays: [2, 5], // Tue, Fri
-    cronHour: 10,
+    cronHour: 9,
     postPrompt: `補助金診断AIサービスのX投稿を1つ作成してください。
 対象: 中小企業経営者・個人事業主・フリーランス
 
@@ -171,7 +171,7 @@ export const SERVICES: Service[] = [
     url: "https://ec-description-generator.vercel.app",
     hashtags: ["メルカリ", "EC副業", "フリマ"],
     cronDays: [1, 4], // Mon, Thu
-    cronHour: 12,
+    cronHour: 21,
     postPrompt: `EC商品説明文生成AIサービスのX投稿を1つ作成してください。
 対象: メルカリ・ヤフオク・楽天・Amazon出品者・EC副業をしている方
 
@@ -193,7 +193,7 @@ export const SERVICES: Service[] = [
     url: "https://sns-post-generator.vercel.app",
     hashtags: ["SNS運用", "コンテンツ制作"],
     cronDays: [3], // Wed
-    cronHour: 11,
+    cronHour: 21,
     postPrompt: `SNS投稿文生成AIサービスのX投稿を1つ作成してください。
 対象: 副業・フリーランス・個人事業主・スモールビジネスオーナー
 
