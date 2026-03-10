@@ -18,7 +18,15 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const todayServices = getTodayServices();
+  // group=morning: cronHour 0-11 JST (UTC 23前日〜10)
+  // group=evening: cronHour 12-23 JST (UTC 3〜14)
+  const group = req.nextUrl.searchParams.get("group");
+  const allTodayServices = getTodayServices();
+  const todayServices = allTodayServices.filter((s) => {
+    if (group === "morning") return s.cronHour < 12;
+    if (group === "evening") return s.cronHour >= 12;
+    return true;
+  });
   const enabledMap = await getEnabledMap();
   const results: { serviceId: string; status: string; error?: string }[] = [];
 
