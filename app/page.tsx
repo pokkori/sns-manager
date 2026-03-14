@@ -119,6 +119,12 @@ export default function Dashboard() {
             <div className="text-2xl font-black text-blue-400">{totalSuccess}</div>
             <div className="text-xs text-gray-500">累計投稿</div>
           </div>
+          <a
+            href="/email"
+            className="bg-blue-700 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm transition"
+          >
+            📧 コールドメール
+          </a>
           <button
             onClick={() => setShowLog(!showLog)}
             className="bg-gray-800 hover:bg-gray-700 text-gray-300 px-4 py-2 rounded-lg text-sm transition"
