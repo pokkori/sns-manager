@@ -475,7 +475,7 @@ export const SERVICES: Service[] = [
     id: "kaigo",
     name: "介護カスハラAI",
     emoji: "🏥",
-    url: "https://kaigo-kasuhara-ai.vercel.app",
+    url: "https://kaigo-custharass-ai.vercel.app",
     hashtags: ["介護カスハラ", "カスハラ対策", "介護施設", "介護経営"],
     cronDays: [1, 3, 5], // Mon, Wed, Fri
     cronHour: 9,
@@ -494,7 +494,7 @@ export const SERVICES: Service[] = [
 4. 介護現場の実際のカスハラ事例（暴言・深夜電話・「訴える」脅迫）への共感と解決策
 5. 「正当なご意見はカスハラではない」という配慮を示しながら、度を超えた行為への対策を訴求
 
-本文の最後の行にサービスURL https://kaigo-kasuhara-ai.vercel.app を入れる。
+本文の最後の行にサービスURL https://kaigo-custharass-ai.vercel.app を入れる。
 その次の行に #介護カスハラ #カスハラ対策 #介護施設 #介護経営 を付ける。
 本文＋URL＋ハッシュタグの合計が280文字以内に収まるようにする。
 テキストのみ返す（余計な説明不要）。`,
