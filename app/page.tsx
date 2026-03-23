@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
 import { SERVICES, type Service } from "@/lib/services";
+import { updateStreak, loadStreak, getStreakMilestoneMessage, type StreakData } from "@/lib/streak";
 
 type PostLog = {
   id: string;
@@ -58,6 +59,8 @@ export default function Dashboard() {
   const [logsLoading, setLogsLoading] = useState(true);
   const [showLog, setShowLog] = useState(false);
   const [localHistory, setLocalHistory] = useState<LocalHistory[]>([]);
+  const [streak, setStreak] = useState<StreakData | null>(null);
+  const [streakMsg, setStreakMsg] = useState<string | null>(null);
 
   const initStates = useCallback(() => {
     const init: Record<string, ServiceState> = {};
@@ -78,6 +81,8 @@ export default function Dashboard() {
     });
     // Load local history
     setLocalHistory(loadLocalHistory());
+    // Load streak
+    setStreak(loadStreak("sns_auto"));
   }, [initStates]);
 
   function updateState(id: string, patch: Partial<ServiceState>) {
@@ -123,6 +128,11 @@ export default function Dashboard() {
       // Save to local history
       saveLocalHistory(preview);
       setLocalHistory(loadLocalHistory());
+      // Update streak on successful post
+      const s = updateStreak("sns_auto");
+      setStreak(s);
+      const msg = getStreakMilestoneMessage(s.count);
+      if (msg) setStreakMsg(msg);
       // Refresh logs
       fetch("/api/logs").then((r) => r.json()).then((d) => setLogs(d.logs ?? []));
     } else {
@@ -146,6 +156,15 @@ export default function Dashboard() {
           <p className="text-xs text-gray-500 mt-0.5">pokkori services — {SERVICES.length} services</p>
         </div>
         <div className="flex items-center gap-6 text-sm">
+          {streak && streak.count > 0 && (
+            <div className="text-center">
+              <div className="text-2xl font-black text-amber-400">{streak.count}</div>
+              <div className="text-xs text-amber-500/80">連続投稿</div>
+            </div>
+          )}
+          {streakMsg && (
+            <span className="text-orange-400 text-xs animate-bounce">{streakMsg}</span>
+          )}
           <div className="text-center">
             <div className="text-2xl font-black text-emerald-400">{todaySuccess}</div>
             <div className="text-xs text-gray-500">今日の投稿</div>
