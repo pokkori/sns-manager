@@ -1,11 +1,26 @@
 import type { Metadata } from "next";
 import "./globals.css";
 
+const SITE_URL = "https://sns-auto-post.vercel.app";
 
 export const metadata: Metadata = {
-  title: "SNS自動投稿管理 | pokkori",
-  robots: "noindex, nofollow",
-  icons: { icon: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📱</text></svg>" },
+  title: "SNS自動投稿管理 | pokkori services",
+  description: "複数サービスのSNS投稿を自動生成・スケジュール管理するダッシュボード。X（旧Twitter）・TikTok台本の一元管理。",
+  metadataBase: new URL(SITE_URL),
+  openGraph: {
+    title: "SNS自動投稿管理",
+    description: "複数サービスのSNS投稿を自動生成・スケジュール管理するダッシュボード。",
+    url: SITE_URL,
+    siteName: "SNS自動投稿管理",
+    locale: "ja_JP",
+    type: "website",
+  },
+  twitter: {
+    card: "summary",
+    title: "SNS自動投稿管理",
+    description: "複数サービスのSNS投稿を自動生成・スケジュール管理するダッシュボード。",
+  },
+  robots: { index: true, follow: true },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
