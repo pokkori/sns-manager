@@ -4,21 +4,31 @@ import "./globals.css";
 const SITE_URL = "https://sns-auto-post.vercel.app";
 
 export const metadata: Metadata = {
-  title: "SNS自動投稿管理 | pokkori services",
-  description: "複数サービスのSNS投稿を自動生成・スケジュール管理するダッシュボード。X（旧Twitter）・TikTok台本の一元管理。",
+  title: "SNS自動投稿管理 | X・TikTok投稿を自動生成・スケジュール管理",
+  description: "複数サービスのSNS投稿を自動生成・スケジュール管理するダッシュボード。X（旧Twitter）・TikTok台本の一元管理。AIが最適な投稿文を自動生成します。",
+  keywords: ["SNS自動投稿", "X自動投稿", "TikTok台本生成", "SNSマーケティング", "投稿スケジュール管理", "AI投稿生成"],
   metadataBase: new URL(SITE_URL),
   openGraph: {
-    title: "SNS自動投稿管理",
-    description: "複数サービスのSNS投稿を自動生成・スケジュール管理するダッシュボード。",
+    title: "SNS自動投稿管理 | X・TikTok投稿を自動生成",
+    description: "複数サービスのSNS投稿を自動生成・スケジュール管理するダッシュボード。X（旧Twitter）・TikTok台本の一元管理。",
     url: SITE_URL,
     siteName: "SNS自動投稿管理",
+    images: [
+      {
+        url: `${SITE_URL}/opengraph-image`,
+        width: 1200,
+        height: 630,
+        alt: "SNS自動投稿管理 - X・TikTok投稿を自動生成・スケジュール管理",
+      },
+    ],
     locale: "ja_JP",
     type: "website",
   },
   twitter: {
-    card: "summary",
-    title: "SNS自動投稿管理",
+    card: "summary_large_image",
+    title: "SNS自動投稿管理 | X・TikTok投稿を自動生成",
     description: "複数サービスのSNS投稿を自動生成・スケジュール管理するダッシュボード。",
+    images: [`${SITE_URL}/opengraph-image`],
   },
   robots: { index: true, follow: true },
 };

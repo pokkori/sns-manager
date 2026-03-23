@@ -124,7 +124,7 @@ export default function Dashboard() {
     const data = await res.json();
     let result = "";
     if (data.ok) {
-      result = data.tweetUrl ? `✅ 投稿完了 → ${data.tweetUrl}` : data.dryRun ? "✅ ドライラン記録済み" : "✅ スクリプト保存済み";
+      result = data.tweetUrl ? `[完了] 投稿完了 → ${data.tweetUrl}` : data.dryRun ? "[完了] ドライラン記録済み" : "[完了] スクリプト保存済み";
       // Save to local history
       saveLocalHistory(preview);
       setLocalHistory(loadLocalHistory());
@@ -136,7 +136,7 @@ export default function Dashboard() {
       // Refresh logs
       fetch("/api/logs").then((r) => r.json()).then((d) => setLogs(d.logs ?? []));
     } else {
-      result = `❌ ${data.error}`;
+      result = `[エラー] ${data.error}`;
     }
     updateState(service.id, { posting: false, lastResult: result });
   }
@@ -204,10 +204,12 @@ export default function Dashboard() {
                 {logs.map((log) => {
                   const svc = SERVICES.find((s) => s.id === log.serviceId);
                   return (
-                    <div key={log.id} className="backdrop-blur-sm bg-white/5 border border-white/10 shadow-lg rounded-xl p-4">
+                    <div key={log.id} className="backdrop-blur-md bg-white/8 border border-white/20 shadow-xl rounded-xl p-4">
                       <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center gap-2">
-                          <span className="text-lg">{svc?.emoji ?? ""}</span>
+                          <span className="w-6 h-6 flex items-center justify-center rounded bg-blue-900/40 text-blue-300 text-xs font-black border border-blue-700/30" aria-hidden="true">
+                            {log.serviceName.slice(0, 2)}
+                          </span>
                           <span className="font-bold text-sm">{log.serviceName}</span>
                           <span className={`text-xs px-2 py-0.5 rounded-full ${
                             log.platform === "x" ? "bg-white/10 text-gray-300" : "bg-pink-900/60 text-pink-300"
@@ -262,14 +264,16 @@ export default function Dashboard() {
                 return (
                   <div
                     key={service.id}
-                    className={`backdrop-blur-sm bg-white/5 rounded-2xl border border-white/10 shadow-lg p-5 flex flex-col gap-3 transition ${
+                    className={`backdrop-blur-md bg-white/8 rounded-2xl border border-white/20 shadow-xl p-5 flex flex-col gap-3 transition hover:bg-white/12 hover:border-white/30 hover:shadow-2xl ${
                       isEnabled ? "" : "opacity-60"
                     }`}
                   >
                     {/* Card header */}
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <span className="text-2xl">{service.emoji}</span>
+                        <span className="w-8 h-8 flex items-center justify-center rounded-lg bg-blue-900/40 text-blue-300 text-xs font-black border border-blue-700/30" aria-hidden="true">
+                          {service.name.slice(0, 2)}
+                        </span>
                         <div>
                           <h3 className="font-bold text-sm">{service.name}</h3>
                           <p className="text-xs text-gray-500">
@@ -323,7 +327,7 @@ export default function Dashboard() {
 
                     {/* Result */}
                     {st.lastResult && (
-                      <p className={`text-xs ${st.lastResult.startsWith("✅") ? "text-emerald-400" : "text-red-400"}`}>
+                      <p className={`text-xs ${st.lastResult.startsWith("[完了]") ? "text-emerald-400" : "text-red-400"}`}>
                         {st.lastResult}
                       </p>
                     )}
@@ -369,7 +373,7 @@ export default function Dashboard() {
             <div className="mt-8">
               <h2 className="font-bold text-lg mb-4">利用履歴</h2>
               {localHistory.length === 0 ? (
-                <div className="backdrop-blur-sm bg-white/5 border border-white/10 shadow-lg rounded-2xl px-5 py-4">
+                <div className="backdrop-blur-md bg-white/8 border border-white/20 shadow-xl rounded-2xl px-5 py-4">
                   <p className="text-gray-500 text-sm">まだ投稿履歴がありません。投稿すると自動で記録されます。</p>
                 </div>
               ) : (
@@ -377,7 +381,7 @@ export default function Dashboard() {
                   {localHistory.map((item, idx) => (
                     <div
                       key={idx}
-                      className="backdrop-blur-sm bg-white/5 border border-white/10 shadow-lg rounded-xl px-4 py-3 flex items-start gap-3"
+                      className="backdrop-blur-md bg-white/8 border border-white/20 shadow-xl rounded-xl px-4 py-3 flex items-start gap-3"
                     >
                       <div className="flex-1 min-w-0">
                         <p className="text-xs text-gray-300 truncate" title={item.text}>
@@ -405,8 +409,10 @@ export default function Dashboard() {
                   {logs.slice(0, 5).map((log) => {
                     const svc = SERVICES.find((s) => s.id === log.serviceId);
                     return (
-                      <div key={log.id} className="flex items-center gap-3 backdrop-blur-sm bg-white/5 border border-white/10 shadow-lg rounded-xl px-4 py-3">
-                        <span>{svc?.emoji ?? ""}</span>
+                      <div key={log.id} className="flex items-center gap-3 backdrop-blur-md bg-white/8 border border-white/20 shadow-xl rounded-xl px-4 py-3">
+                        <span className="w-6 h-6 flex items-center justify-center rounded bg-blue-900/40 text-blue-300 text-xs font-black border border-blue-700/30 shrink-0" aria-hidden="true">
+                          {(svc?.name ?? log.serviceName).slice(0, 2)}
+                        </span>
                         <span className="text-sm font-bold w-28 shrink-0">{log.serviceName}</span>
                         <p className="text-xs text-gray-400 flex-1 truncate">{log.content}</p>
                         <span className={`text-xs shrink-0 ${log.status === "success" ? "text-emerald-400" : "text-red-400"}`}>
@@ -432,12 +438,14 @@ export default function Dashboard() {
             </div>
 
             {/* Cron info */}
-            <div className="mt-8 backdrop-blur-sm bg-white/5 border border-white/10 shadow-lg rounded-2xl p-5">
+            <div className="mt-8 backdrop-blur-md bg-white/8 border border-white/20 shadow-xl rounded-2xl p-5">
               <h3 className="font-bold text-sm mb-3 text-emerald-400">自動投稿スケジュール</h3>
               <div className="grid md:grid-cols-2 gap-2 text-xs text-gray-400">
                 {SERVICES.map((s) => (
                   <div key={s.id} className="flex items-center gap-2">
-                    <span>{s.emoji}</span>
+                    <span className="w-5 h-5 flex items-center justify-center rounded bg-blue-900/40 text-blue-300 text-xs font-black border border-blue-700/30 shrink-0" aria-hidden="true">
+                      {s.name.slice(0, 1)}
+                    </span>
                     <span className="text-gray-300">{s.name}:</span>
                     <span>{s.cronDays.map((d) => ["日","月","火","水","木","金","土"][d]).join("・")}曜 {s.cronHour}時</span>
                     <span className={enabled[s.id] !== false ? "text-emerald-400" : "text-gray-600"}>
