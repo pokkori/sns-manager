@@ -22,12 +22,42 @@ type ServiceState = {
   platform: "x" | "tiktok_script";
 };
 
+type LocalHistory = {
+  text: string;
+  createdAt: string;
+};
+
+const LOCAL_HISTORY_KEY = "sns_auto_history";
+const LOCAL_HISTORY_MAX = 5;
+
+function saveLocalHistory(text: string) {
+  try {
+    const raw = localStorage.getItem(LOCAL_HISTORY_KEY);
+    const history: LocalHistory[] = raw ? JSON.parse(raw) : [];
+    const newEntry: LocalHistory = { text, createdAt: new Date().toISOString() };
+    const updated = [newEntry, ...history].slice(0, LOCAL_HISTORY_MAX);
+    localStorage.setItem(LOCAL_HISTORY_KEY, JSON.stringify(updated));
+  } catch {
+    // ignore
+  }
+}
+
+function loadLocalHistory(): LocalHistory[] {
+  try {
+    const raw = localStorage.getItem(LOCAL_HISTORY_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+}
+
 export default function Dashboard() {
   const [enabled, setEnabled] = useState<Record<string, boolean>>({});
   const [states, setStates] = useState<Record<string, ServiceState>>({});
   const [logs, setLogs] = useState<PostLog[]>([]);
   const [logsLoading, setLogsLoading] = useState(true);
   const [showLog, setShowLog] = useState(false);
+  const [localHistory, setLocalHistory] = useState<LocalHistory[]>([]);
 
   const initStates = useCallback(() => {
     const init: Record<string, ServiceState> = {};
@@ -46,6 +76,8 @@ export default function Dashboard() {
       setLogs(d.logs ?? []);
       setLogsLoading(false);
     });
+    // Load local history
+    setLocalHistory(loadLocalHistory());
   }, [initStates]);
 
   function updateState(id: string, patch: Partial<ServiceState>) {
@@ -88,6 +120,9 @@ export default function Dashboard() {
     let result = "";
     if (data.ok) {
       result = data.tweetUrl ? `✅ 投稿完了 → ${data.tweetUrl}` : data.dryRun ? "✅ ドライラン記録済み" : "✅ スクリプト保存済み";
+      // Save to local history
+      saveLocalHistory(preview);
+      setLocalHistory(loadLocalHistory());
       // Refresh logs
       fetch("/api/logs").then((r) => r.json()).then((d) => setLogs(d.logs ?? []));
     } else {
@@ -103,11 +138,11 @@ export default function Dashboard() {
   }).length;
 
   return (
-    <main className="min-h-screen bg-gray-950 text-white">
+    <main className="min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950 text-white">
       {/* Header */}
-      <header className="bg-gray-900 border-b border-gray-800 px-6 py-4 flex items-center justify-between">
+      <header className="backdrop-blur-sm bg-gray-900/80 border-b border-white/10 px-6 py-4 flex items-center justify-between sticky top-0 z-10">
         <div>
-          <h1 className="font-black text-xl text-white">📡 SNS自動投稿管理</h1>
+          <h1 className="font-black text-xl text-white">SNS自動投稿管理</h1>
           <p className="text-xs text-gray-500 mt-0.5">pokkori services — {SERVICES.length} services</p>
         </div>
         <div className="flex items-center gap-6 text-sm">
@@ -124,12 +159,12 @@ export default function Dashboard() {
             aria-label="コールドメール送信ページへ移動"
             className="bg-blue-700 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm transition"
           >
-            📧 コールドメール
+            コールドメール
           </a>
           <button
             onClick={() => setShowLog(!showLog)}
             aria-label={showLog ? "ダッシュボードに戻る" : "投稿ログを見る"}
-            className="bg-gray-800 hover:bg-gray-700 text-gray-300 px-4 py-2 rounded-lg text-sm transition"
+            className="backdrop-blur-sm bg-white/5 hover:bg-white/10 text-gray-300 px-4 py-2 rounded-lg text-sm transition border border-white/10"
           >
             {showLog ? "ダッシュボードに戻る" : "投稿ログを見る"}
           </button>
@@ -150,21 +185,21 @@ export default function Dashboard() {
                 {logs.map((log) => {
                   const svc = SERVICES.find((s) => s.id === log.serviceId);
                   return (
-                    <div key={log.id} className="bg-gray-900 border border-gray-800 rounded-xl p-4">
+                    <div key={log.id} className="backdrop-blur-sm bg-white/5 border border-white/10 shadow-lg rounded-xl p-4">
                       <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center gap-2">
-                          <span className="text-lg">{svc?.emoji ?? "📝"}</span>
+                          <span className="text-lg">{svc?.emoji ?? ""}</span>
                           <span className="font-bold text-sm">{log.serviceName}</span>
                           <span className={`text-xs px-2 py-0.5 rounded-full ${
-                            log.platform === "x" ? "bg-gray-800 text-gray-300" : "bg-pink-900 text-pink-300"
+                            log.platform === "x" ? "bg-white/10 text-gray-300" : "bg-pink-900/60 text-pink-300"
                           }`}>
                             {log.platform === "x" ? "X" : "TikTok台本"}
                           </span>
                           <span className={`text-xs px-2 py-0.5 rounded-full ${
-                            log.status === "success" ? "bg-emerald-900 text-emerald-400" :
-                            log.status === "failed" ? "bg-red-900 text-red-400" : "bg-gray-800 text-gray-400"
+                            log.status === "success" ? "bg-emerald-900/60 text-emerald-400" :
+                            log.status === "failed" ? "bg-red-900/60 text-red-400" : "bg-white/10 text-gray-400"
                           }`}>
-                            {log.status === "success" ? "✓ 成功" : log.status === "failed" ? "✗ 失敗" : "下書き"}
+                            {log.status === "success" ? "成功" : log.status === "failed" ? "失敗" : "下書き"}
                           </span>
                         </div>
                         <span className="text-xs text-gray-500">
@@ -208,8 +243,8 @@ export default function Dashboard() {
                 return (
                   <div
                     key={service.id}
-                    className={`bg-gray-900 rounded-2xl border p-5 flex flex-col gap-3 transition ${
-                      isEnabled ? "border-gray-800" : "border-gray-800 opacity-60"
+                    className={`backdrop-blur-sm bg-white/5 rounded-2xl border border-white/10 shadow-lg p-5 flex flex-col gap-3 transition ${
+                      isEnabled ? "" : "opacity-60"
                     }`}
                   >
                     {/* Card header */}
@@ -248,11 +283,11 @@ export default function Dashboard() {
                           aria-pressed={st.platform === p}
                           className={`text-xs px-3 py-1 rounded-full transition ${
                             st.platform === p
-                              ? p === "x" ? "bg-blue-900 text-blue-300" : "bg-pink-900 text-pink-300"
-                              : "bg-gray-800 text-gray-500"
+                              ? p === "x" ? "bg-blue-900/80 text-blue-300 border border-blue-700/40" : "bg-pink-900/80 text-pink-300 border border-pink-700/40"
+                              : "bg-white/5 text-gray-500 border border-white/10"
                           }`}
                         >
-                          {p === "x" ? "𝕏 X投稿" : "TikTok台本"}
+                          {p === "x" ? "X投稿" : "TikTok台本"}
                         </button>
                       ))}
                     </div>
@@ -261,7 +296,7 @@ export default function Dashboard() {
                     {st.preview && (
                       <textarea
                         aria-label={`${service.name}の投稿プレビュー（編集可能）`}
-                        className="w-full bg-gray-800 border border-gray-700 rounded-xl p-3 text-xs text-gray-200 resize-none h-24 focus:outline-none focus:border-gray-600"
+                        className="w-full backdrop-blur-sm bg-white/5 border border-white/10 rounded-xl p-3 text-xs text-gray-200 resize-none h-24 focus:outline-none focus:border-white/30"
                         value={st.preview}
                         onChange={(e) => updateState(service.id, { preview: e.target.value })}
                       />
@@ -280,18 +315,18 @@ export default function Dashboard() {
                         onClick={() => generate(service)}
                         disabled={st.generating}
                         aria-label={`${service.name}の投稿文を${st.preview ? "再生成" : "生成"}する`}
-                        className="flex-1 bg-gray-800 hover:bg-gray-700 text-gray-200 text-xs font-bold py-2 rounded-xl transition disabled:opacity-50"
+                        className="flex-1 backdrop-blur-sm bg-white/10 hover:bg-white/20 text-gray-200 text-xs font-bold py-2 rounded-xl transition disabled:opacity-50 border border-white/10"
                       >
-                        {st.generating ? "生成中..." : st.preview ? "再生成" : "✨ 生成"}
+                        {st.generating ? "生成中..." : st.preview ? "再生成" : "生成"}
                       </button>
                       {st.preview && (
                         <button
                           onClick={() => post(service)}
                           disabled={st.posting}
                           aria-label={`${service.name}の投稿文を${st.platform === "x" ? "Xに投稿" : "TikTok台本として保存"}する`}
-                          className="flex-1 bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold py-2 rounded-xl transition disabled:opacity-50"
+                          className="flex-1 bg-blue-600/80 hover:bg-blue-500 text-white text-xs font-bold py-2 rounded-xl transition disabled:opacity-50 border border-blue-500/30 backdrop-blur-sm"
                         >
-                          {st.posting ? "投稿中..." : "▶ 投稿"}
+                          {st.posting ? "投稿中..." : "投稿"}
                         </button>
                       )}
                     </div>
@@ -311,6 +346,34 @@ export default function Dashboard() {
               })}
             </div>
 
+            {/* Local history panel */}
+            <div className="mt-8">
+              <h2 className="font-bold text-lg mb-4">利用履歴</h2>
+              {localHistory.length === 0 ? (
+                <div className="backdrop-blur-sm bg-white/5 border border-white/10 shadow-lg rounded-2xl px-5 py-4">
+                  <p className="text-gray-500 text-sm">まだ投稿履歴がありません。投稿すると自動で記録されます。</p>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {localHistory.map((item, idx) => (
+                    <div
+                      key={idx}
+                      className="backdrop-blur-sm bg-white/5 border border-white/10 shadow-lg rounded-xl px-4 py-3 flex items-start gap-3"
+                    >
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs text-gray-300 truncate" title={item.text}>
+                          {item.text.slice(0, 50)}{item.text.length > 50 ? "…" : ""}
+                        </p>
+                      </div>
+                      <span className="text-xs text-gray-600 shrink-0">
+                        {new Date(item.createdAt).toLocaleString("ja-JP", { month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit" })}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
             {/* Recent logs preview */}
             <div className="mt-8">
               <h2 className="font-bold text-lg mb-4">直近の投稿</h2>
@@ -323,12 +386,12 @@ export default function Dashboard() {
                   {logs.slice(0, 5).map((log) => {
                     const svc = SERVICES.find((s) => s.id === log.serviceId);
                     return (
-                      <div key={log.id} className="flex items-center gap-3 bg-gray-900 border border-gray-800 rounded-xl px-4 py-3">
-                        <span>{svc?.emoji ?? "📝"}</span>
+                      <div key={log.id} className="flex items-center gap-3 backdrop-blur-sm bg-white/5 border border-white/10 shadow-lg rounded-xl px-4 py-3">
+                        <span>{svc?.emoji ?? ""}</span>
                         <span className="text-sm font-bold w-28 shrink-0">{log.serviceName}</span>
                         <p className="text-xs text-gray-400 flex-1 truncate">{log.content}</p>
                         <span className={`text-xs shrink-0 ${log.status === "success" ? "text-emerald-400" : "text-red-400"}`}>
-                          {log.status === "success" ? "✓" : "✗"}
+                          {log.status === "success" ? "成功" : "失敗"}
                         </span>
                         <span className="text-xs text-gray-600 shrink-0">
                           {new Date(log.createdAt).toLocaleString("ja-JP", { month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit" })}
@@ -350,8 +413,8 @@ export default function Dashboard() {
             </div>
 
             {/* Cron info */}
-            <div className="mt-8 bg-gray-900 border border-gray-800 rounded-2xl p-5">
-              <h3 className="font-bold text-sm mb-3 text-emerald-400">⏰ 自動投稿スケジュール</h3>
+            <div className="mt-8 backdrop-blur-sm bg-white/5 border border-white/10 shadow-lg rounded-2xl p-5">
+              <h3 className="font-bold text-sm mb-3 text-emerald-400">自動投稿スケジュール</h3>
               <div className="grid md:grid-cols-2 gap-2 text-xs text-gray-400">
                 {SERVICES.map((s) => (
                   <div key={s.id} className="flex items-center gap-2">
