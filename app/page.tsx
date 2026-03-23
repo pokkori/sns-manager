@@ -121,12 +121,14 @@ export default function Dashboard() {
           </div>
           <a
             href="/email"
+            aria-label="コールドメール送信ページへ移動"
             className="bg-blue-700 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm transition"
           >
             📧 コールドメール
           </a>
           <button
             onClick={() => setShowLog(!showLog)}
+            aria-label={showLog ? "ダッシュボードに戻る" : "投稿ログを見る"}
             className="bg-gray-800 hover:bg-gray-700 text-gray-300 px-4 py-2 rounded-lg text-sm transition"
           >
             {showLog ? "ダッシュボードに戻る" : "投稿ログを見る"}
@@ -175,6 +177,7 @@ export default function Dashboard() {
                           href={`https://x.com/i/web/status/${log.tweetId}`}
                           target="_blank"
                           rel="noopener noreferrer"
+                          aria-label={`${log.serviceName}の投稿をXで見る`}
                           className="text-xs text-blue-400 hover:underline mt-2 block"
                         >
                           Xで見る →
@@ -223,6 +226,8 @@ export default function Dashboard() {
                       {/* Toggle */}
                       <button
                         onClick={() => toggleEnabled(service.id)}
+                        aria-label={`${service.name}の自動投稿を${isEnabled ? "無効" : "有効"}にする`}
+                        aria-pressed={isEnabled}
                         className={`w-10 h-6 rounded-full transition-colors relative ${
                           isEnabled ? "bg-emerald-500" : "bg-gray-700"
                         }`}
@@ -239,6 +244,8 @@ export default function Dashboard() {
                         <button
                           key={p}
                           onClick={() => updateState(service.id, { platform: p })}
+                          aria-label={`${service.name}の投稿プラットフォームを${p === "x" ? "X（旧Twitter）" : "TikTok台本"}に切り替える`}
+                          aria-pressed={st.platform === p}
                           className={`text-xs px-3 py-1 rounded-full transition ${
                             st.platform === p
                               ? p === "x" ? "bg-blue-900 text-blue-300" : "bg-pink-900 text-pink-300"
@@ -253,6 +260,7 @@ export default function Dashboard() {
                     {/* Preview area */}
                     {st.preview && (
                       <textarea
+                        aria-label={`${service.name}の投稿プレビュー（編集可能）`}
                         className="w-full bg-gray-800 border border-gray-700 rounded-xl p-3 text-xs text-gray-200 resize-none h-24 focus:outline-none focus:border-gray-600"
                         value={st.preview}
                         onChange={(e) => updateState(service.id, { preview: e.target.value })}
@@ -271,6 +279,7 @@ export default function Dashboard() {
                       <button
                         onClick={() => generate(service)}
                         disabled={st.generating}
+                        aria-label={`${service.name}の投稿文を${st.preview ? "再生成" : "生成"}する`}
                         className="flex-1 bg-gray-800 hover:bg-gray-700 text-gray-200 text-xs font-bold py-2 rounded-xl transition disabled:opacity-50"
                       >
                         {st.generating ? "生成中..." : st.preview ? "再生成" : "✨ 生成"}
@@ -279,6 +288,7 @@ export default function Dashboard() {
                         <button
                           onClick={() => post(service)}
                           disabled={st.posting}
+                          aria-label={`${service.name}の投稿文を${st.platform === "x" ? "Xに投稿" : "TikTok台本として保存"}する`}
                           className="flex-1 bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold py-2 rounded-xl transition disabled:opacity-50"
                         >
                           {st.posting ? "投稿中..." : "▶ 投稿"}
@@ -291,6 +301,7 @@ export default function Dashboard() {
                       href={service.url}
                       target="_blank"
                       rel="noopener noreferrer"
+                      aria-label={`${service.name}のサービスページを新しいタブで開く`}
                       className="text-xs text-gray-600 hover:text-gray-400 transition text-center"
                     >
                       {service.url.replace("https://", "")} ↗
@@ -326,7 +337,11 @@ export default function Dashboard() {
                     );
                   })}
                   {logs.length > 5 && (
-                    <button onClick={() => setShowLog(true)} className="text-xs text-gray-500 hover:text-gray-300 transition w-full text-center py-2">
+                    <button
+                      onClick={() => setShowLog(true)}
+                      aria-label={`投稿ログ全${logs.length}件を見る`}
+                      className="text-xs text-gray-500 hover:text-gray-300 transition w-full text-center py-2"
+                    >
                       全{logs.length}件を見る →
                     </button>
                   )}
