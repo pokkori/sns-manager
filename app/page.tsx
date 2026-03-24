@@ -20,6 +20,7 @@ type ServiceState = {
   posting: boolean;
   preview: string;
   lastResult: string;
+  lastShareUrl: string;
   platform: "x" | "tiktok_script";
 };
 
@@ -65,7 +66,7 @@ export default function Dashboard() {
   const initStates = useCallback(() => {
     const init: Record<string, ServiceState> = {};
     SERVICES.forEach((s) => {
-      init[s.id] = { generating: false, posting: false, preview: "", lastResult: "", platform: "x" };
+      init[s.id] = { generating: false, posting: false, preview: "", lastResult: "", lastShareUrl: "", platform: "x" };
     });
     setStates(init);
   }, []);
@@ -123,8 +124,13 @@ export default function Dashboard() {
     });
     const data = await res.json();
     let result = "";
+    let shareUrl = "";
     if (data.ok) {
       result = data.tweetUrl ? `[完了] 投稿完了 → ${data.tweetUrl}` : data.dryRun ? "[完了] ドライラン記録済み" : "[完了] スクリプト保存済み";
+      // Build share URL for completed posts
+      const totalSuccessAfter = logs.filter((l) => l.status === "success").length + 1;
+      const shareText = `SNS自動投稿管理ツールで${service.name}の投稿を自動化！累計${totalSuccessAfter}件投稿達成 #SNS自動投稿 https://sns-auto-post.vercel.app`;
+      shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}`;
       // Save to local history
       saveLocalHistory(preview);
       setLocalHistory(loadLocalHistory());
@@ -138,7 +144,7 @@ export default function Dashboard() {
     } else {
       result = `[エラー] ${data.error}`;
     }
-    updateState(service.id, { posting: false, lastResult: result });
+    updateState(service.id, { posting: false, lastResult: result, lastShareUrl: shareUrl });
   }
 
   const totalSuccess = logs.filter((l) => l.status === "success").length;
@@ -327,9 +333,26 @@ export default function Dashboard() {
 
                     {/* Result */}
                     {st.lastResult && (
-                      <p className={`text-xs ${st.lastResult.startsWith("[完了]") ? "text-emerald-400" : "text-red-400"}`}>
-                        {st.lastResult}
-                      </p>
+                      <div>
+                        <p className={`text-xs ${st.lastResult.startsWith("[完了]") ? "text-emerald-400" : "text-red-400"}`}>
+                          {st.lastResult}
+                        </p>
+                        {st.lastResult.startsWith("[完了]") && st.lastShareUrl && (
+                          <a
+                            href={st.lastShareUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            aria-label={`${service.name}の投稿完了をXでシェアする`}
+                            className="flex items-center justify-center gap-1.5 mt-2 w-full py-2 rounded-xl text-xs font-bold min-h-[44px] transition-colors hover:bg-gray-800"
+                            style={{ background: "#000", color: "#fff" }}
+                          >
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                              <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                            </svg>
+                            Xでシェア
+                          </a>
+                        )}
+                      </div>
                     )}
 
                     {/* Buttons */}
