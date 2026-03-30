@@ -41,7 +41,18 @@ export default function PrivacyPage() {
             <p>本ポリシーは予告なく変更する場合があります。変更後は本ページに掲載した時点で効力を生じます。</p>
           </div>
           <div>
-            <h2 className="font-bold text-gray-900 mb-2">6. お問い合わせ</h2>
+            <h2 className="font-bold text-gray-900 mb-2">6. 外部送信規律に基づく情報送信</h2>
+            <p className="mb-2">本サービスでは、電気通信事業法の外部送信規律に基づき、以下の外部サービスにデータを送信しています。</p>
+            <table className="w-full text-left border-collapse text-xs text-gray-600">
+              <thead><tr className="border-b"><th className="py-2 pr-2">送信先</th><th className="py-2 pr-2">目的</th><th className="py-2">送信される情報</th></tr></thead>
+              <tbody>
+                <tr className="border-b"><td className="py-2 pr-2">Anthropic（Claude API）</td><td className="py-2 pr-2">AIによるSNS投稿文の生成</td><td className="py-2">ユーザーの入力テキスト</td></tr>
+                <tr><td className="py-2 pr-2">Vercel Inc.</td><td className="py-2 pr-2">ホスティング・アクセス解析</td><td className="py-2">ページビュー・デバイス情報</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div>
+            <h2 className="font-bold text-gray-900 mb-2">7. お問い合わせ</h2>
             <p>ポッコリラボ 代表 新美　／　levonadesign@gmail.com　／　090-6093-5290</p>
           </div>
         </section>

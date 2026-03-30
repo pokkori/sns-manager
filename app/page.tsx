@@ -154,11 +154,11 @@ export default function Dashboard() {
   }).length;
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950 text-white">
+    <main className="min-h-screen text-white" style={{ background: 'radial-gradient(ellipse at 20% 50%, rgba(59, 130, 246, 0.08) 0%, transparent 50%), radial-gradient(ellipse at 80% 20%, rgba(99, 102, 241, 0.06) 0%, transparent 50%), radial-gradient(ellipse at 50% 80%, rgba(14, 165, 233, 0.05) 0%, transparent 50%), #0A0A15' }}>
       {/* Header */}
-      <header className="backdrop-blur-sm bg-gray-900/80 border-b border-white/10 px-6 py-4 flex items-center justify-between sticky top-0 z-10">
+      <header className="px-6 py-4 flex items-center justify-between sticky top-0 z-10" style={{ background: 'rgba(10,10,21,0.8)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
         <div>
-          <h1 className="font-black text-xl text-white">SNS自動投稿管理</h1>
+          <h1 className="font-black text-xl" style={{ background: 'linear-gradient(135deg, #FFFFFF, #93C5FD)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>SNS自動投稿管理</h1>
           <p className="text-xs text-gray-500 mt-0.5">pokkori services — {SERVICES.length} services</p>
         </div>
         <div className="flex items-center gap-6 text-sm">
@@ -182,7 +182,8 @@ export default function Dashboard() {
           <a
             href="/email"
             aria-label="コールドメール送信ページへ移動"
-            className="bg-blue-700 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm transition"
+            className="text-white px-4 py-2 rounded-lg text-sm transition-all hover:scale-105 min-h-[44px] flex items-center"
+            style={{ background: 'linear-gradient(135deg, #3B82F6, #2563EB)', boxShadow: '0 0 15px rgba(59,130,246,0.3)' }}
           >
             コールドメール
           </a>
