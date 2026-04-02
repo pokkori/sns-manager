@@ -1,6 +1,8 @@
 {
   "crons": [
     { "path": "/api/cron?group=morning", "schedule": "0 0 * * *" },
-    { "path": "/api/cron?group=evening", "schedule": "0 12 * * *" }
+    { "path": "/api/cron?group=evening", "schedule": "0 12 * * *" },
+    { "path": "/api/cron/metrics", "schedule": "0 1 * * *" },
+    { "path": "/api/cron/report", "schedule": "0 0 * * 1" }
   ]
 }

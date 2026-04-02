@@ -1,6 +1,14 @@
 // Vercel KV wrapper — falls back to in-memory if KV is not configured
 import { SERVICES } from "./services";
 
+export type PostLogMetrics = {
+  likes: number;
+  retweets: number;
+  replies: number;
+  quotes: number;
+  engagementScore: number; // likes + retweets*3 + replies*2 + quotes*2
+};
+
 export type PostLog = {
   id: string;
   serviceId: string;
@@ -11,6 +19,7 @@ export type PostLog = {
   tweetId?: string;
   error?: string;
   createdAt: string;
+  metrics?: PostLogMetrics;
 };
 
 // In-memory fallback (resets on cold start)
@@ -68,4 +77,81 @@ export async function setEnabled(serviceId: string, enabled: boolean): Promise<v
   } else {
     memEnabled[serviceId] = enabled;
   }
+}
+
+export async function updateLogMetrics(
+  tweetId: string,
+  metrics: PostLog["metrics"]
+): Promise<void> {
+  const kv = await getKv();
+  if (kv) {
+    const logs = await kv.get<PostLog[]>("sns_logs") ?? [];
+    const idx = logs.findIndex((l) => l.tweetId === tweetId);
+    if (idx !== -1) {
+      logs[idx] = { ...logs[idx], metrics };
+      await kv.set("sns_logs", logs);
+    }
+  } else {
+    const idx = memLogs.findIndex((l) => l.tweetId === tweetId);
+    if (idx !== -1) {
+      memLogs[idx] = { ...memLogs[idx], metrics };
+    }
+  }
+}
+
+export async function getServiceStats(): Promise<Array<{
+  serviceId: string;
+  serviceName: string;
+  totalPosts: number;
+  totalEngagement: number;
+  avgEngagement: number;
+  lastPostedAt: string | null;
+}>> {
+  const logs = await getLogs();
+  const statsMap: Record<string, {
+    serviceId: string;
+    serviceName: string;
+    totalPosts: number;
+    totalEngagement: number;
+    lastPostedAt: string | null;
+  }> = {};
+
+  // Initialize with all services
+  for (const svc of SERVICES) {
+    statsMap[svc.id] = {
+      serviceId: svc.id,
+      serviceName: svc.name,
+      totalPosts: 0,
+      totalEngagement: 0,
+      lastPostedAt: null,
+    };
+  }
+
+  for (const log of logs) {
+    if (log.status !== "success") continue;
+    if (!statsMap[log.serviceId]) {
+      statsMap[log.serviceId] = {
+        serviceId: log.serviceId,
+        serviceName: log.serviceName,
+        totalPosts: 0,
+        totalEngagement: 0,
+        lastPostedAt: null,
+      };
+    }
+    const entry = statsMap[log.serviceId];
+    entry.totalPosts += 1;
+    if (log.metrics) {
+      entry.totalEngagement += log.metrics.engagementScore;
+    }
+    if (!entry.lastPostedAt || log.createdAt > entry.lastPostedAt) {
+      entry.lastPostedAt = log.createdAt;
+    }
+  }
+
+  return Object.values(statsMap).map((entry) => ({
+    ...entry,
+    avgEngagement: entry.totalPosts > 0
+      ? Math.round((entry.totalEngagement / entry.totalPosts) * 10) / 10
+      : 0,
+  }));
 }

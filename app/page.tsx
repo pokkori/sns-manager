@@ -15,6 +15,15 @@ type PostLog = {
   createdAt: string;
 };
 
+type ServiceStat = {
+  serviceId: string;
+  serviceName: string;
+  totalPosts: number;
+  totalEngagement: number;
+  avgEngagement: number;
+  lastPostedAt: string | null;
+};
+
 type ServiceState = {
   generating: boolean;
   posting: boolean;
@@ -62,6 +71,8 @@ export default function Dashboard() {
   const [localHistory, setLocalHistory] = useState<LocalHistory[]>([]);
   const [streak, setStreak] = useState<StreakData | null>(null);
   const [streakMsg, setStreakMsg] = useState<string | null>(null);
+  const [serviceStats, setServiceStats] = useState<ServiceStat[]>([]);
+  const [statsLoading, setStatsLoading] = useState(true);
 
   const initStates = useCallback(() => {
     const init: Record<string, ServiceState> = {};
@@ -84,6 +95,11 @@ export default function Dashboard() {
     setLocalHistory(loadLocalHistory());
     // Load streak
     setStreak(loadStreak("sns_auto"));
+    // Load service stats
+    fetch("/api/stats").then((r) => r.json()).then((d) => {
+      setServiceStats(d.stats ?? []);
+      setStatsLoading(false);
+    }).catch(() => setStatsLoading(false));
   }, [initStates]);
 
   function updateState(id: string, patch: Partial<ServiceState>) {
@@ -459,6 +475,64 @@ export default function Dashboard() {
                   )}
                 </div>
               )}
+            </div>
+
+            {/* Engagement Ranking */}
+            <div className="mt-8">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="font-bold text-lg">エンゲージメント ランキング TOP5</h2>
+                <span className="text-xs text-gray-500">metrics収集後に更新</span>
+              </div>
+              {statsLoading ? (
+                <p className="text-gray-500 text-sm">読み込み中...</p>
+              ) : (() => {
+                const ranked = [...serviceStats]
+                  .filter((s) => s.totalPosts > 0)
+                  .sort((a, b) => b.avgEngagement - a.avgEngagement)
+                  .slice(0, 5);
+                const maxAvg = ranked.length > 0 ? ranked[0].avgEngagement : 1;
+                return ranked.length === 0 ? (
+                  <div className="backdrop-blur-md bg-white/8 border border-white/20 shadow-xl rounded-2xl px-5 py-4">
+                    <p className="text-gray-500 text-sm">まだエンゲージメントデータがありません。投稿後24時間でメトリクスが収集されます。</p>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {ranked.map((svc, idx) => {
+                      const barPct = maxAvg > 0 ? Math.round((svc.avgEngagement / maxAvg) * 100) : 0;
+                      const medals = ["🥇", "🥈", "🥉", "4位", "5位"];
+                      return (
+                        <div key={svc.serviceId} className="backdrop-blur-md bg-white/8 border border-white/20 shadow-xl rounded-xl p-4">
+                          <div className="flex items-center gap-3 mb-2">
+                            <span className="text-lg w-8 text-center shrink-0" aria-hidden="true">{medals[idx]}</span>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center justify-between">
+                                <span className="font-bold text-sm truncate">{svc.serviceName}</span>
+                                <span className="text-xs text-blue-400 ml-2 shrink-0">avg {svc.avgEngagement.toFixed(1)}</span>
+                              </div>
+                              <div className="flex items-center gap-2 mt-1.5">
+                                <div className="flex-1 bg-white/10 rounded-full h-1.5 overflow-hidden">
+                                  <div
+                                    className="h-full rounded-full"
+                                    style={{
+                                      width: `${barPct}%`,
+                                      background: idx === 0
+                                        ? "linear-gradient(90deg, #fbbf24, #f59e0b)"
+                                        : idx === 1
+                                        ? "linear-gradient(90deg, #9ca3af, #6b7280)"
+                                        : "linear-gradient(90deg, #60a5fa, #3b82f6)",
+                                    }}
+                                  />
+                                </div>
+                                <span className="text-xs text-gray-500 shrink-0">{svc.totalPosts}投稿 / 累計{svc.totalEngagement}</span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                );
+              })()}
             </div>
 
             {/* Cron info */}
