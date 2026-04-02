@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 import { getTodayServices, getServiceById } from "@/lib/services";
-import { postTweet, isTwitterConfigured } from "@/lib/twitter";
+import { postTweet, replyTweet, isTwitterConfigured } from "@/lib/twitter";
 import { addLog, getEnabledMap } from "@/lib/store";
 import { nanoid } from "nanoid";
 
@@ -51,6 +51,13 @@ export async function GET(req: NextRequest) {
       // Post to X
       if (isTwitterConfigured()) {
         const result = await postTweet(content);
+
+        // First Comment strategy: reply with URL 50ms after main post
+        if (service.url) {
+          await new Promise((resolve) => setTimeout(resolve, 50));
+          await replyTweet(`詳細・無料で試せます\n${service.url}`, result.tweetId);
+        }
+
         await addLog({
           id: nanoid(),
           serviceId: service.id,

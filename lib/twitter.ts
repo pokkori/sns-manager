@@ -19,6 +19,17 @@ export async function postTweet(text: string): Promise<{ tweetId: string; url: s
   };
 }
 
+export async function replyTweet(text: string, inReplyToTweetId: string): Promise<string | null> {
+  const client = getClient();
+  try {
+    const response = await client.v2.reply(text, inReplyToTweetId);
+    return response.data?.id ?? null;
+  } catch (error) {
+    console.error('[Twitter] reply error:', error);
+    return null;
+  }
+}
+
 export function isTwitterConfigured(): boolean {
   return !!(
     process.env.TWITTER_API_KEY &&
