@@ -15,7 +15,7 @@ export default function EmailPage() {
   const [template, setTemplate] = useState<Template>("飲食");
   const [recipientText, setRecipientText] = useState("");
   const [fromEmail, setFromEmail] = useState("");
-  const [fromName, setFromName] = useState("ポッコリラボ 代表 新美");
+  const [fromName, setFromName] = useState("ポッコリラボ 代表 新美諭");
   const [sending, setSending] = useState(false);
   const [results, setResults] = useState<Result[] | null>(null);
   const [summary, setSummary] = useState<{ sent: number; failed: number } | null>(null);
