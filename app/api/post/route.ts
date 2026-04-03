@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { postTweet, isTwitterConfigured } from "@/lib/twitter";
 import { addLog, getEnabledMap } from "@/lib/store";
 import { getServiceById } from "@/lib/services";
+import { postFirstComment } from "@/lib/firstComment";
 import { nanoid } from "nanoid";
 
 export const dynamic = "force-dynamic";
@@ -46,6 +47,12 @@ export async function POST(req: NextRequest) {
   try {
     const result = await postTweet(content);
     await addLog({ ...log, status: "success", tweetId: result.tweetId });
+
+    // ファーストコメント（リプライ）投稿 — 失敗してもメイン投稿は成功扱い
+    postFirstComment(result.tweetId, service).catch((e) =>
+      console.warn("[FirstComment] unexpected error:", e)
+    );
+
     return NextResponse.json({ ok: true, tweetUrl: result.url });
   } catch (err) {
     const error = err instanceof Error ? err.message : "Unknown error";
