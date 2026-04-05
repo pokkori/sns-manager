@@ -1,0 +1,27 @@
+# SNS自動投稿管理
+> 44本のWebサービスのSNS投稿を自動生成・予約投稿する管理ツール
+
+## サービス概要
+- **カテゴリ**: マーケティングAI
+- **URL**: https://sns-manager.vercel.app
+- **提供形態**: Webブラウザで利用可能（登録不要で試せます）
+- **開発**: Claude Code + Next.js 16 + Vercel
+
+## 主要ページ
+- [トップページ](https://sns-manager.vercel.app/): メイン機能・サービス説明
+- [ツール](https://sns-manager.vercel.app/tool): AI機能の利用画面（一部サービス）
+- [プライバシーポリシー](https://sns-manager.vercel.app/privacy): 個人情報の取り扱い
+- [特定商取引法に基づく表記](https://sns-manager.vercel.app/legal): 法的情報
+
+## 利用シーン
+44本のWebサービスのSNS投稿を自動生成・予約投稿する管理ツール
+
+## 技術スタック
+- フロントエンド: Next.js 16, React 19, TypeScript, Tailwind CSS
+- AI: Claude claude-sonnet-4-6 (Anthropic)
+- バックエンド: Vercel Edge Functions, Supabase
+- 決済: KOMOJU（クレジットカード・コンビニ払い対応）
+
+## robots.txt
+AIクローラーによるインデックスを歓迎します。
+GPTBot, ClaudeBot, PerplexityBot, Googlebot-Extended のアクセスを許可しています。
