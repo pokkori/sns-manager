@@ -499,7 +499,7 @@ export default function Dashboard() {
                   <div className="space-y-3">
                     {ranked.map((svc, idx) => {
                       const barPct = maxAvg > 0 ? Math.round((svc.avgEngagement / maxAvg) * 100) : 0;
-                      const medals = ["🥇", "🥈", "🥉", "4位", "5位"];
+                      const medals = ["1位", "2位", "3位", "4位", "5位"];
                       return (
                         <div key={svc.serviceId} className="backdrop-blur-md bg-white/8 border border-white/20 shadow-xl rounded-xl p-4">
                           <div className="flex items-center gap-3 mb-2">
