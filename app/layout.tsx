@@ -58,6 +58,37 @@ const jsonLd = {
   },
 };
 
+const faqLd = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "SNS自動投稿管理とは何ができますか？",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "X（旧Twitter）・TikTok台本の投稿文をAIが自動生成し、スケジュール管理・一括投稿ができるダッシュボードです。複数サービスの投稿を一元管理し、週次レポートで効果測定もできます。"
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "どのSNSに対応していますか？",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "X（旧Twitter）への直接投稿と、TikTok台本の自動生成に対応しています。AIがサービスの内容に合わせた最適な投稿文を生成します。"
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "無料で使えますか？",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "基本機能は無料でご利用いただけます。X投稿にはTwitter APIキーの設定が必要です。"
+      }
+    },
+  ]
+};
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="ja">
@@ -69,6 +100,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd) }}
         />
       </head>
       <body className="antialiased">{children}</body>
