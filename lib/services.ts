@@ -1,3 +1,5 @@
+export type XAccount = "hanamori" | "pokkori";
+
 export type Service = {
   id: string;
   name: string;
@@ -8,6 +10,8 @@ export type Service = {
   cronDays: number[];
   cronHour: number; // JST hour to post
   postPrompt: string;
+  /** X (Twitter) account to post from. Defaults to "pokkori" when omitted. */
+  xAccount?: XAccount;
 };
 
 export const SERVICES: Service[] = [
@@ -995,6 +999,392 @@ URLは本文に含めない。本文末尾に「→リプへ」と書く。
 ハッシュタグは1個のみ。
 参加型・リアクション誘発型の投稿にする。
 140文字以内。テキストのみ返す。`,
+  },
+  // ── 建設・介護業務AI（2026年4月）────────────────────────────────
+  {
+    id: "kensetsu-shorui-ai",
+    name: "建設書類AI",
+    emoji: "🏗️",
+    url: "https://kensetsu-shorui-ai.vercel.app",
+    hashtags: ["建設業", "安全書類", "IT導入補助金"],
+    cronDays: [1, 3, 5], // Mon, Wed, Fri
+    cronHour: 8,
+    xAccount: "pokkori" as const,
+    postPrompt: `建設書類AIサービスのX投稿を1つ作成してください。
+対象: 建設業の現場監督・施工管理者・中小建設会社の経営者
+
+以下のいずれかのテーマで日本語ツイートを作成:
+1. 「建設業の安全書類、毎朝30分かけて手書きしていませんか？AIが施工体制台帳・KY表・作業手順書など8種類を5分で生成」
+2. 「グリーンファイルが15分→5分に。元請けから求められる安全書類をAIが即座に作成（無料3回試せます）」
+3. 「建設業2024年問題で書類作成の負担が増えていませんか？月額¥3,800〜でIT導入補助金2026対象」
+4. 「施工体制台帳・KY活動記録・ヒヤリハット報告書→8種類の書類を5分で生成するAIが登場」
+5. 「IT導入補助金2026対象ツールで建設書類を自動化→実質負担を大幅削減できる理由」
+
+URLは本文に含めない。本文末尾に「↓詳細はリプへ」と書く。
+ハッシュタグは最も関連性の高い1〜2個のみ本文末尾に入れる。
+140文字以内で、課題提起→解決策の構成で書く。テキストのみ返す。`,
+  },
+  {
+    id: "kensetsu-anzen-ai",
+    name: "建設安全書類AI",
+    emoji: "⛑️",
+    url: "https://kensetsu-anzen-ai.vercel.app",
+    hashtags: ["建設安全", "KY活動", "安全管理"],
+    cronDays: [2, 4], // Tue, Thu
+    cronHour: 8,
+    xAccount: "pokkori" as const,
+    postPrompt: `建設安全書類AIサービスのX投稿を1つ作成してください。
+対象: 建設現場の安全担当者・現場監督・中小建設会社の経営者
+
+以下のいずれかのテーマで日本語ツイートを作成:
+1. 「KY表（危険予知活動記録）、毎朝手書きしていませんか？作業内容を入力するだけで3分で完成（月額¥9,800・IT導入補助金2026対象）」
+2. 「ヒヤリハット報告書の作成に時間がかかっていませんか？5種類の安全管理書類をAIが即座に生成」
+3. 「2024年問題対応：建設業の残業規制で書類作成の効率化が急務→AIで現場の日常安全書類を自動生成（無料5回体験）」
+4. 「KY表・安全朝礼スクリプト・施工計画書・新規入場者教育記録→AIが5分で全部作る」
+5. 「安全朝礼の原稿をAIが自動生成→毎朝の準備時間を30分から5分に短縮した建設会社の事例」
+
+URLは本文に含めない。本文末尾に「↓詳細はリプへ」と書く。
+ハッシュタグは最も関連性の高い1〜2個のみ本文末尾に入れる。
+140文字以内で、課題提起→解決策の構成で書く。テキストのみ返す。`,
+  },
+  {
+    id: "kaigo-hiyarihatto-ai",
+    name: "介護ヒヤリハットAI",
+    emoji: "🏥",
+    url: "https://kaigo-hiyarihatto-ai.vercel.app",
+    hashtags: ["介護", "ヒヤリハット", "介護施設"],
+    cronDays: [2, 4, 6], // Tue, Thu, Sat
+    cronHour: 9,
+    xAccount: "pokkori" as const,
+    postPrompt: `介護ヒヤリハットAIサービスのX投稿を1つ作成してください。
+対象: 介護施設の施設長・管理者・介護職員
+
+以下のいずれかのテーマで日本語ツイートを作成:
+1. 「介護施設のヒヤリハット報告書、手書きで何分かけていますか？発生状況・原因・再発防止策を入力するだけで5分で完成（月額¥9,800・IT導入補助金2026対象）」
+2. 「介護記録・事故報告書・リスクアセスメント表をAIが自動生成。個人情報不要（属性のみ入力）→無料5回お試し」
+3. 「2026年10月義務化：介護施設のカスハラ対策と事故防止体制の整備が急務。介護カスハラAIと介護ヒヤリハットAIをセットで月¥67,600」
+4. 「ヒヤリハット報告を職員が面倒で後回しにしている→AIで5分化すれば報告率が上がり事故を未然に防げる」
+5. 「介護現場の記録業務をAIで時短→職員の残業削減＆スタッフ定着率向上につながった施設の事例」
+
+URLは本文に含めない。本文末尾に「↓詳細はリプへ」と書く。
+ハッシュタグは最も関連性の高い1〜2個のみ本文末尾に入れる。
+140文字以内で、課題提起→解決策の構成で書く。テキストのみ返す。`,
+  },
+  // ── 製造業・補助金申請書（2026年4月）────────────────────────────────
+  {
+    id: "seizogyo-hiyarihatto-ai",
+    name: "製造業ヒヤリハットAI",
+    emoji: "🏭",
+    url: "https://seizogyo-hiyarihatto-ai.vercel.app",
+    hashtags: ["製造業", "安全管理"],
+    cronDays: [1, 3, 5], // Mon, Wed, Fri
+    cronHour: 8,
+    xAccount: "pokkori" as const,
+    postPrompt: `製造業ヒヤリハットAIサービスのX投稿を1つ作成してください。
+対象: 製造業の安全管理担当者・現場リーダー
+
+以下の3パターンをローテーションして日本語ツイートを作成:
+1. ヒヤリハット報告書作成の課題訴求 + 解決策提示 + URL案内（末尾に「↓詳細はリプへ」）
+2. 第14次労働災害防止計画対応の緊急性訴求 + 無料体験CTA + URL案内（末尾に「↓詳細はリプへ」）
+3. 月次安全報告書・リスクアセスメント自動生成の具体的メリット + URL案内（末尾に「↓詳細はリプへ」）
+
+URLは本文に含めない。本文末尾に「↓詳細はリプへ」と書く。
+ハッシュタグは #製造業 #安全管理 の2個を本文末尾に入れる。
+280文字以内で、課題提起→解決策の構成で書く。テキストのみ返す。`,
+  },
+  {
+    id: "hojyokin-shinsei-ai",
+    name: "補助金申請書AI",
+    emoji: "📝",
+    url: "https://hojyokin-shinsei-ai.vercel.app",
+    hashtags: ["補助金", "中小企業", "IT導入補助金", "行政書士"],
+    cronDays: [1, 3], // Mon, Wed
+    cronHour: 10,
+    xAccount: "pokkori" as const,
+    postPrompt: `補助金申請書AIサービスのX投稿を1つ作成してください。
+対象: 中小企業経営者・行政書士
+
+以下の3パターンをローテーションして日本語ツイートを作成:
+1. 「IT導入補助金2026 第1次公募締切：2026年5月12日（残り15日）。申請書の下書きをAIで30分に短縮。無料3回体験。 https://hojyokin-shinsei-ai.vercel.app #補助金 #中小企業」
+2. 「ものづくり補助金・事業再構築補助金の申請書作成に3日かかっていませんか？補助金申請書AIで下書きを30分で生成。 https://hojyokin-shinsei-ai.vercel.app #補助金 #IT導入補助金」
+3. 「行政書士・経営コンサルタントの方へ：顧問先の補助金申請書下書きをAIで効率化。月額¥9,800で無制限利用。 https://hojyokin-shinsei-ai.vercel.app #補助金 #行政書士」
+
+上記3パターンをそのまま1つ選んで出力してください。URLもそのまま含めてください。
+テキストのみ返す。`,
+  },
+  {
+    id: "hr-kyujin-ai",
+    name: "HR求人票AI",
+    emoji: "📋",
+    url: "https://hr-kyujin-ai.vercel.app",
+    hashtags: ["採用", "中小企業", "求人", "社労士"],
+    cronDays: [2, 5], // Tue, Fri
+    cronHour: 9,
+    xAccount: "pokkori" as const,
+    postPrompt: `HR求人票AIサービスのX投稿を1つ作成してください。
+対象: 中小企業経営者・採用担当者
+
+以下の3パターンをローテーションして日本語ツイートを作成:
+1. 「採用費用は平均¥85万/人。HR求人票AIで求人票・面接評価シート・内定通知書を5分で生成。月額¥4,980。 https://hr-kyujin-ai.vercel.app #採用 #中小企業」
+2. 「ハローワーク・Indeed対応の求人票がAIで5分完成。面接質問リスト・内定通知書も自動生成。無料3回体験。 https://hr-kyujin-ai.vercel.app #求人 #採用コスト削減」
+3. 「社労士の先生へ：顧問先の採用書類作成を効率化。求人票・面接評価シートをAIで即生成。月額¥4,980。 https://hr-kyujin-ai.vercel.app #社労士 #採用」
+
+上記3パターンをそのまま1つ選んで出力してください。URLもそのまま含めてください。
+テキストのみ返す。`,
+  },
+  {
+    id: "kaigo-kiroku-ai",
+    name: "介護記録AI書記",
+    emoji: "📋",
+    url: "https://kaigo-kiroku-ai.vercel.app",
+    hashtags: ["介護記録", "介護施設", "介護DX"],
+    cronDays: [3, 6], // Wed, Sat
+    cronHour: 9,
+    xAccount: "pokkori" as const,
+    postPrompt: `介護記録AI書記サービスのX投稿を1つ作成してください。
+対象: 介護施設の施設長・管理者・ケアマネジャー
+
+以下の3パターンをローテーションして日本語ツイートを作成:
+1. 「介護施設の記録業務、1件あたり何分かけていますか？ケア記録・申し送り書・家族連絡記録など8種類の記録書類をAIが5分で生成。個人情報不要。 #介護記録 #介護DX」
+2. 「介護記録の電子化・適正管理が介護報酬算定に影響します。AIで記録業務を効率化し、職員の残業削減＆スタッフ定着率を向上。介護カスハラAI・介護ヒヤリハットAIとのセット利用で月¥34,800。 #介護施設 #介護DX」
+3. 「特養・老健・グループホーム・デイサービス・訪問介護対応。要介護度別のケア記録をAIが自動生成。IT導入補助金2026（最大450万円）対象ツール。月額¥9,800〜。 #介護記録 #介護施設」
+
+上記3パターンをそのまま1つ選んで出力してください。URLは含めず末尾に「↓詳細はリプへ」と書く。
+テキストのみ返す。`,
+  },
+  {
+    id: "iryou-hiyarihatto-ai",
+    name: "医療ヒヤリハットAI",
+    emoji: "🏥",
+    url: "https://iryou-hiyarihatto-ai.vercel.app",
+    hashtags: ["医療安全", "ヒヤリハット", "クリニック経営"],
+    cronDays: [2, 5], // Tue, Fri
+    cronHour: 9,
+    xAccount: "pokkori" as const,
+    postPrompt: `医療ヒヤリハットAIサービスのX投稿を1つ作成してください。
+対象: 病院・クリニック・歯科医院の院長・医療安全管理者・事務長
+
+以下の3パターンをローテーションして日本語ツイートを作成:
+1. 「医療現場のヒヤリハット報告書、1件30分かけて書いていませんか？発生状況を入力するだけでAIが5分で生成。インシデントレポート・リスクアセスメント表も対応。 #医療安全 #クリニック経営」
+2. 「医療安全管理の強化が進む中、ヒヤリハット報告体制の整備が急務です。AIで報告書8種類を自動生成。IT導入補助金2026（最大450万円）対象ツール。 #医療安全 #ヒヤリハット」
+3. 「患者転倒・薬剤エラー・感染症対策報告書もAIが自動生成。病院・クリニック・歯科医院向け。月額¥9,800・無料3回体験あり。 #医療安全 #クリニック経営」
+
+上記3パターンをそのまま1つ選んで出力してください。URLは含めず末尾に「↓詳細はリプへ」と書く。
+テキストのみ返す。`,
+  },
+  {
+    id: "shugyo-kisoku-ai",
+    name: "就業規則AI",
+    emoji: "📜",
+    url: "https://shugyo-kisoku-ai.vercel.app",
+    hashtags: ["就業規則", "中小企業", "労務管理", "社労士"],
+    cronDays: [1, 4], // Mon, Thu
+    cronHour: 9,
+    xAccount: "pokkori" as const,
+    postPrompt: `就業規則AIサービスのX投稿を1つ作成してください。
+対象: 中小企業経営者・人事担当者・社会保険労務士
+
+以下の3パターンをローテーションして日本語ツイートを作成:
+1. 「従業員10人以上の企業は就業規則の作成・届出が義務（労基法89条）。作成費用30万〜を就業規則AIなら月額¥9,800で。8種類の社内規程を5分で生成。 #就業規則 #中小企業」
+2. 「就業規則・ハラスメント防止規程・テレワーク規程・SNS利用規程をAIが5分で生成。2026年義務化対応。IT導入補助金2026（最大450万円）対象。 #労務管理 #中小企業」
+3. 「社労士の先生へ：顧問先の就業規則・各種社内規程の草案作成をAIで効率化。月額¥9,800で8種類の規程を無制限生成。 #社労士 #就業規則」
+
+上記3パターンをそのまま1つ選んで出力してください。URLは含めず末尾に「↓詳細はリプへ」と書く。
+テキストのみ返す。`,
+  },
+  {
+    id: "tencho-kiroku-ai",
+    name: "点呼記録AI",
+    emoji: "🚗",
+    url: "https://tencho-kiroku-ai.vercel.app",
+    hashtags: ["点呼記録", "運行管理", "働き方改革"],
+    cronDays: [1, 4], // Mon, Thu
+    cronHour: 8,
+    xAccount: "pokkori" as const,
+    postPrompt: `点呼記録AIサービスのX投稿を1つ作成してください。
+対象: 運送会社・バス会社・タクシー会社・トラック事業者の運行管理者・安全管理担当者
+
+以下の3パターンをローテーションして日本語ツイートを作成:
+1. 「運行前後の点呼記録、手書きでまだやっていますか？点呼記録・運行日誌・アルコールチェック記録をAIが5分で生成。法令対応フォーマット完備。月額¥9,800。 #点呼記録 #運行管理」
+2. 「2023年10月から義務化されたアルコール検知器による点呼。記録の電子化・適正管理も義務です。AIで点呼記録書を即時生成。IT導入補助金2026（最大450万円）対象ツール。 #運行管理 #働き方改革」
+3. 「運送・バス・タクシー事業者向け。乗務前点呼・乗務後点呼・中間点呼の3種類をAIが自動生成。無料3回体験あり。月額¥9,800〜。 #点呼記録 #運行管理」
+
+上記3パターンをそのまま1つ選んで出力してください。URLは含めず末尾に「↓詳細はリプへ」と書く。
+テキストのみ返す。`,
+  },
+  {
+    id: "hanamori-patreon",
+    name: "HanaMori AI (Patreon)",
+    emoji: "🌸",
+    url: "https://www.patreon.com/c/hanamoriart2026",
+    hashtags: ["AIArt", "PatreonArtist", "AnimeAI"],
+    cronDays: [1, 4, 6], // Mon, Thu, Sat（Redditゴールデンタイムと同期）
+    cronHour: 13, // JST 13:00 = 米国東部 0:00 AM（深夜前ゴールデンタイム）
+    postPrompt: `HanaMori AI art Patreon page promotional tweet in English. Target audience: anime/AI art enthusiasts on X (Twitter).
+
+Create ONE tweet in English with the following theme (rotate):
+1. "New AI anime artwork drop — exclusive HD packs available on Patreon. Fan Support tier starts at $5/mo. Early access included." [art showcase CTA]
+2. "HanaMori AI has been creating stunning anime character art daily. Join 0→? Patrons to get exclusive monthly packs + behind-the-scenes. 🌸" [community building]
+3. "AI-generated anime art that hits different. Monthly HD wallpaper packs, early access, and NSFW gallery for members. Link in replies." [feature highlight]
+4. "Consistency is the key. HanaMori AI posts new artwork daily — Patreon members get HD downloads + exclusive content. $5/mo." [value proposition]
+
+Rules:
+- Write in English
+- NO URL in tweet body. End with "→ Link in replies" or "→ Patreon in replies"
+- 1-2 hashtags max (#AIArt or #AnimeAI)
+- Keep under 280 characters
+- Return text only`,
+    xAccount: "hanamori",
+  },
+  {
+    id: "shaazai",
+    name: "謝罪文AI",
+    emoji: "🙇",
+    url: "https://shaazai-ai.vercel.app",
+    hashtags: ["謝罪", "謝り方"],
+    cronDays: [1, 3, 5], // 月水金
+    cronHour: 20,
+    postPrompt: `謝罪文AIサービスのX(Twitter)投稿を1つ作成してください。
+
+サービス概要: 相手との関係・状況・トーンを入力するとAIが最適な謝罪文（メール/LINE/口頭）を自動生成。深刻度ゲージつき。無料3回、詳細分析¥480。
+
+投稿のポイント:
+- 「謝り方がわからない」「うまく謝れない」という共感から入る
+- 謝罪文は具体的な場面（上司に・パートナーに・友人に）で書く
+- 「AIが3パターン自動生成」「深刻度スコア付き」などの機能訴求
+- 共感・笑い・驚きのどれかを入れる
+
+Rules:
+- 日本語で書く
+- URL不要（投稿本文に含めない）
+- ハッシュタグは指定されたものから1〜2個
+- 140文字以内
+- テキストのみ返す`,
+  },
+  {
+    id: "fugen",
+    name: "復縁AI",
+    emoji: "💕",
+    url: "https://fugen-ai-dun.vercel.app",
+    hashtags: ["復縁", "恋愛相談"],
+    cronDays: [2, 4, 6], // 火木土
+    cronHour: 21,
+    postPrompt: `復縁AIサービスのX(Twitter)投稿を1つ作成してください。
+
+サービス概要: 交際期間・別れた理由・連絡状況などを入力するとAIが復縁可能性スコア(0〜100)・3ステップ戦略・最初のメッセージ案・NGアクション一覧を提供。無料3回、詳細分析¥480。
+
+投稿のポイント:
+- 「元カレ/元カノのこと忘れられない」という共感から入る
+- 復縁スコアや成功パターンなど数字・データを使う
+- 「何をすべきか・何をしてはいけないか」のアドバイス訴求
+- 感情に刺さる言葉を使う
+
+Rules:
+- 日本語で書く
+- URL不要
+- ハッシュタグは指定されたものから1〜2個
+- 140文字以内
+- テキストのみ返す`,
+  },
+  {
+    id: "uwaki",
+    name: "浮気チェックAI",
+    emoji: "🔍",
+    url: "https://uwaki-check-ai.vercel.app",
+    hashtags: ["浮気", "恋愛"],
+    cronDays: [0, 3, 6], // 日水土
+    cronHour: 22,
+    postPrompt: `浮気チェックAIサービスのX(Twitter)投稿を1つ作成してください。
+
+サービス概要: パートナーの行動変化・連絡状況・気になる行動を入力するとAIが浮気リスクスコア(0〜100)・怪しいポイント・確認行動リストを分析。無料3回、詳細レポート¥480。
+
+投稿のポイント:
+- 「もしかして浮気してる？」という不安に共感
+- 具体的なサインの例（帰りが遅い・スマホを隠す等）
+- 「AIが客観的に分析」という訴求
+- 不安を煽りすぎずに情報提供寄りで書く
+
+Rules:
+- 日本語で書く
+- URL不要
+- ハッシュタグは指定されたものから1〜2個
+- 140文字以内
+- テキストのみ返す`,
+  },
+  {
+    id: "oshi-aisho",
+    name: "推し相性診断AI",
+    emoji: "💖",
+    url: "https://oshi-aisho-ai.vercel.app",
+    hashtags: ["推し活", "推し相性", "2次元"],
+    cronDays: [2, 5, 0], // Tue, Fri, Sun（推し活が盛んな週末前後）
+    cronHour: 21,
+    postPrompt: `推し相性診断AIサービスのX(Twitter)投稿を1つ作成してください。
+
+サービス概要: 自分の性格・価値観を入力するとAIが推しキャラとの相性をスコア化し、相性が高い理由・あなたと推しの共通点・推しとの妄想シナリオまで生成。無料3回、詳細分析¥980/月。
+
+投稿のポイント:
+- 「推しのこと好きすぎてつらい」「推しと自分が釣り合うか不安」という共感から入る
+- 「相性スコア○%」という数字を使う
+- 妄想シナリオ・推しとの共通点という意外なコンテンツを訴求
+- 推し活民のリアルな感情に刺さる言葉を使う
+
+Rules:
+- 日本語で書く
+- URL不要
+- ハッシュタグは指定されたものから1〜2個
+- 140文字以内
+- テキストのみ返す`,
+  },
+  {
+    id: "shokuba-stress",
+    name: "職場ストレス診断AI",
+    emoji: "😮‍💨",
+    url: "https://shokuba-stress-ai.vercel.app",
+    hashtags: ["職場ストレス", "メンタルヘルス", "仕事辞めたい"],
+    cronDays: [1, 3, 5], // Mon, Wed, Fri
+    cronHour: 22,
+    postPrompt: `職場ストレス診断AIサービスのX(Twitter)投稿を1つ作成してください。
+
+サービス概要: 職場での人間関係・業務量・評価への不満を入力するとAIがストレスレベル(0〜100)・燃え尽き症候群リスク・転職すべきかの判断・次のアクション3選を提供。無料3回、詳細レポート¥1,480/月。
+
+投稿のポイント:
+- 「仕事が辛い」「職場に行きたくない」という共感から入る
+- ストレスレベルスコアや燃え尽き症候群という言葉を使う
+- 「転職すべき？」という悩みに答える訴求
+- 月曜日は特に「月曜が憂鬱」な感情に寄せる
+
+Rules:
+- 日本語で書く
+- URL不要
+- ハッシュタグは指定されたものから1〜2個
+- 140文字以内
+- テキストのみ返す`,
+  },
+  {
+    id: "morahara",
+    name: "モラハラ診断AI",
+    emoji: "🛡",
+    url: "https://morahara-shindan-ai.vercel.app",
+    hashtags: ["モラハラ", "ハラスメント"],
+    cronDays: [1, 4, 0], // 月木日
+    cronHour: 19,
+    postPrompt: `モラハラ診断AIサービスのX(Twitter)投稿を1つ作成してください。
+
+サービス概要: 職場・家庭・恋愛での言動パターンを入力するとAIがモラハラスコア(0〜100)・行動パターン分析・法的手段案内・対処法を提供。無料3回、詳細レポート¥480。
+
+投稿のポイント:
+- 「これってモラハラ？」という疑問・不安に共感
+- 具体的な行動例（人前で怒鳴る・無視する・支配する等）
+- 「あなたには権利がある」という力づける言葉
+- 社会問題として重要性を訴える
+
+Rules:
+- 日本語で書く
+- URL不要
+- ハッシュタグは指定されたものから1〜2個
+- 140文字以内
+- テキストのみ返す`,
   },
 ];
 
