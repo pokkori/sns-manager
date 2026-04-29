@@ -9,6 +9,8 @@
     { "path": "/api/cron/cost-check", "schedule": "0 21 * * *" },
     { "path": "/api/cron/churn-alert", "schedule": "0 22 * * *" },
     { "path": "/api/cron/mrr-report", "schedule": "0 23 * * *" },
-    { "path": "/api/cron/monthly-review", "schedule": "0 0 1 * *" }
+    { "path": "/api/cron/monthly-review", "schedule": "0 0 1 * *" },
+    { "path": "/api/cron/budget-sentinel", "schedule": "30 21 * * *" },
+    { "path": "/api/cron/weekly-report", "schedule": "0 0 * * 1" }
   ]
 }
