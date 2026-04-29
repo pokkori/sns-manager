@@ -8,6 +8,10 @@ const SERVICES = [
   { name: "共同親権サポートAI", url: "https://kyodo-shinken-ai.vercel.app" },
   { name: "婚活AI", url: "https://konkatsu-ai.vercel.app" },
   { name: "告白LINE返信AI", url: "https://kokuhaku-line-ai.vercel.app" },
+  { name: "モラハラ診断AI", url: "https://morahara-shindan-ai.vercel.app" },
+  { name: "謝罪文AI", url: "https://shaazai-ai.vercel.app" },
+  { name: "浮気チェックAI", url: "https://uwaki-check-ai.vercel.app" },
+  { name: "復縁AI", url: "https://fugen-ai.vercel.app" },
 ];
 
 const TIMEOUT_MS = 10000;
