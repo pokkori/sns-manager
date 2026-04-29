@@ -50,8 +50,9 @@ export async function GET(req: NextRequest) {
       const content = (response.content[0] as { text: string }).text.trim();
 
       // Post to X
-      if (isTwitterConfigured()) {
-        const result = await postTweet(content);
+      const xAccount = service.xAccount ?? "pokkori";
+      if (isTwitterConfigured(xAccount)) {
+        const result = await postTweet(content, xAccount);
 
         // ファーストコメント（ENABLE_FIRST_COMMENT=true のときのみ）
         postFirstComment(result.tweetId, service).catch((e) =>

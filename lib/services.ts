@@ -518,7 +518,7 @@ URLは本文に含めない。本文末尾に「↓リプにURL」と書く。
     url: "https://kaigo-custharass-ai.vercel.app",
     hashtags: ["介護カスハラ", "カスハラ対策", "介護施設", "介護経営"],
     cronDays: [1, 3, 5], // Mon, Wed, Fri
-    cronHour: 9,
+    cronHour: 7, // 介護従事者は07:30-08:00が最アクティブ
     postPrompt: `介護カスハラAIサービスのX(Twitter)投稿を1つ作成してください。
 対象: 介護事業所の施設長・管理者・介護経営者
 
@@ -1054,7 +1054,7 @@ URLは本文に含めない。本文末尾に「↓詳細はリプへ」と書�
     url: "https://kaigo-hiyarihatto-ai.vercel.app",
     hashtags: ["介護", "ヒヤリハット", "介護施設"],
     cronDays: [2, 4, 6], // Tue, Thu, Sat
-    cronHour: 9,
+    cronHour: 7, // 介護従事者は07:30-08:00が最アクティブ
     xAccount: "pokkori" as const,
     postPrompt: `介護ヒヤリハットAIサービスのX投稿を1つ作成してください。
 対象: 介護施設の施設長・管理者・介護職員
@@ -1139,7 +1139,7 @@ URLは本文に含めない。本文末尾に「↓詳細はリプへ」と書�
     url: "https://kaigo-kiroku-ai.vercel.app",
     hashtags: ["介護記録", "介護施設", "介護DX"],
     cronDays: [3, 6], // Wed, Sat
-    cronHour: 9,
+    cronHour: 7, // 介護従事者は07:30-08:00が最アクティブ
     xAccount: "pokkori" as const,
     postPrompt: `介護記録AI書記サービスのX投稿を1つ作成してください。
 対象: 介護施設の施設長・管理者・ケアマネジャー

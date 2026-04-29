@@ -38,14 +38,15 @@ export async function POST(req: NextRequest) {
   }
 
   // X posting
-  if (!isTwitterConfigured()) {
+  const xAccount = service.xAccount ?? "pokkori";
+  if (!isTwitterConfigured(xAccount)) {
     // Dry run
     await addLog({ ...log, status: "success", tweetId: "dry-run" });
     return NextResponse.json({ ok: true, dryRun: true, message: "Twitter APIが未設定のため、ドライランとして記録しました" });
   }
 
   try {
-    const result = await postTweet(content);
+    const result = await postTweet(content, xAccount);
     await addLog({ ...log, status: "success", tweetId: result.tweetId });
 
     // ファーストコメント（リプライ）投稿 — 失敗してもメイン投稿は成功扱い

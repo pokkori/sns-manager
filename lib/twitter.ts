@@ -1,6 +1,16 @@
 import { TwitterApi } from "twitter-api-v2";
 
-function getClient() {
+export type XAccount = "hanamori" | "pokkori";
+
+function getClient(account: XAccount = "pokkori") {
+  if (account === "hanamori") {
+    return new TwitterApi({
+      appKey: process.env.HANAMORI_TWITTER_API_KEY!,
+      appSecret: process.env.HANAMORI_TWITTER_API_SECRET!,
+      accessToken: process.env.HANAMORI_TWITTER_ACCESS_TOKEN!,
+      accessSecret: process.env.HANAMORI_TWITTER_ACCESS_TOKEN_SECRET!,
+    });
+  }
   return new TwitterApi({
     appKey: process.env.TWITTER_API_KEY!,
     appSecret: process.env.TWITTER_API_SECRET!,
@@ -9,8 +19,11 @@ function getClient() {
   });
 }
 
-export async function postTweet(text: string): Promise<{ tweetId: string; url: string }> {
-  const client = getClient();
+export async function postTweet(
+  text: string,
+  account: XAccount = "pokkori"
+): Promise<{ tweetId: string; url: string }> {
+  const client = getClient(account);
   const tweet = await client.v2.tweet(text);
   const tweetId = tweet.data.id;
   return {
@@ -19,8 +32,12 @@ export async function postTweet(text: string): Promise<{ tweetId: string; url: s
   };
 }
 
-export async function replyTweet(text: string, inReplyToTweetId: string): Promise<string | null> {
-  const client = getClient();
+export async function replyTweet(
+  text: string,
+  inReplyToTweetId: string,
+  account: XAccount = "pokkori"
+): Promise<string | null> {
+  const client = getClient(account);
   try {
     const response = await client.v2.reply(text, inReplyToTweetId);
     return response.data?.id ?? null;
@@ -30,7 +47,15 @@ export async function replyTweet(text: string, inReplyToTweetId: string): Promis
   }
 }
 
-export function isTwitterConfigured(): boolean {
+export function isTwitterConfigured(account: XAccount = "pokkori"): boolean {
+  if (account === "hanamori") {
+    return !!(
+      process.env.HANAMORI_TWITTER_API_KEY &&
+      process.env.HANAMORI_TWITTER_API_SECRET &&
+      process.env.HANAMORI_TWITTER_ACCESS_TOKEN &&
+      process.env.HANAMORI_TWITTER_ACCESS_TOKEN_SECRET
+    );
+  }
   return !!(
     process.env.TWITTER_API_KEY &&
     process.env.TWITTER_API_SECRET &&
@@ -40,7 +65,8 @@ export function isTwitterConfigured(): boolean {
 }
 
 export async function getTweetMetrics(
-  tweetIds: string[]
+  tweetIds: string[],
+  account: XAccount = "pokkori"
 ): Promise<Array<{
   tweetId: string;
   likes: number;
@@ -59,7 +85,7 @@ export async function getTweetMetrics(
   }> = [];
 
   try {
-    const client = getClient();
+    const client = getClient(account);
     // Process in batches of 100 (Twitter API limit)
     const batchSize = 100;
     for (let i = 0; i < tweetIds.length; i += batchSize) {
